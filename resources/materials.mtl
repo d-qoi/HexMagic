@@ -1,0 +1,21 @@
+newmtl red
+Ka  0.1 0 0
+Kd  1 0 0 
+Ks  1 1 1
+Ns  10
+
+newmtl green
+Ka  0 0.1 0
+Kd  0 1 0 
+Ks  0 1 0 
+r 0.5
+sharpness 30
+
+newmtl blue
+Ka  0 0 0.5
+Kd  0 0 1
+Ks  1 1 1
+d  0.5
+Ni  1.33
+Ns  0
+
