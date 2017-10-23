@@ -15,6 +15,7 @@ uniform int shadingMode;
 in vec3 pos;
 in vec3 colorIn;
 in vec3 normalIn;
+in vec2 rectCoord;
 
 out vec3 smoothPos;
 out vec3 smoothNorm;
@@ -30,7 +31,7 @@ const float specAlpha = 10;
 void main()
 {
 	//hack to preserve inputs/output
-	vec3 mpos = pos + colorIn * 0 + normalIn * 0;
+	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + vec3(0, rectCoord.x + rectCoord.y, 0) * 0.02;
 	smoothPos = pos;
 	smoothNorm = normalIn;
 	

@@ -48,6 +48,7 @@ public:
         positions = vector<GLfloat>();
 		elements = vector<GLuint>();
 		colors = vector<GLfloat>();
+		rectCoordinates = vector<GLuint>();
 
 		// 8 vertices in each rect
 		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
@@ -63,34 +64,50 @@ public:
 			positions.push_back(x + width);
 			positions.push_back(y);
 			positions.push_back(z);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x + width);
 			positions.push_back(y);
 			positions.push_back(z + width);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
 			positions.push_back(y);
 			positions.push_back(z + width);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
 			positions.push_back(y);
 			positions.push_back(z);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x + width);
 			positions.push_back(y + rectModel.zLength);
 			positions.push_back(z);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x + width);
 			positions.push_back(y + rectModel.zLength);
 			positions.push_back(z + width);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
 			positions.push_back(y + rectModel.zLength);
 			positions.push_back(z + width);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
 			positions.push_back(y + rectModel.zLength);
 			positions.push_back(z);
+			rectCoordinates.push_back(rectModel.x);
+			rectCoordinates.push_back(rectModel.y);
 
 			//DONE Loop over all faces and compute the normal for each vertex in the face.
 			for(int j = 0; j < 12; j++) {
@@ -151,6 +168,9 @@ public:
 	
 	vector<GLuint> const getElements() const
 	{ return elements; }
+
+	vector<GLuint> const getRectCoordinates() const
+	{ return rectCoordinates; }
 	
 	size_t getVertexCount() const
 	{ return positions.size()/3; }
@@ -166,6 +186,9 @@ public:
 	
 	size_t getElementBytes() const
 	{ return elements.size()*sizeof(GLuint); }
+
+	size_t getRectCoordinatesBytes() const
+	{ return rectCoordinates.size()*sizeof(GLuint); }
     
     glm::vec3 getMinBound()
     { return min; }
@@ -246,6 +269,7 @@ private:
 	vector<GLfloat> colors;
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
+	vector<GLuint> rectCoordinates;
 	size_t objectCount;
     
     glm::vec3 min;

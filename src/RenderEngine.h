@@ -187,9 +187,13 @@ private:
 		GLuint normalBuffer;
 		GLuint elementBuffer;
 		GLuint lightBuffer;
+
         GLint colorSlot;
 		GLint normalSlot;
         GLint positionSlot;
+
+		GLuint rectCoordBuffer;
+		GLint rectCoordSlot;
 		
 		bool loaded = model.getPosition().size() > 0;
 		//setup position buffer
@@ -229,6 +233,19 @@ private:
 		glVertexAttribPointer(normalSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("n setup");
+
+		// Rect coords
+		glGenBuffers(1, &rectCoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, rectCoordBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getRectCoordinatesBytes(), &model.getRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		rectCoordSlot =    glGetAttribLocation(shaderProg, "rectCoord");
+		glEnableVertexAttribArray(rectCoordSlot);
+		glVertexAttribPointer(rectCoordSlot, 2, GL_INT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("rect coord setup");
 		
 		// now the elements
 		glGenBuffers(1, &elementBuffer);
