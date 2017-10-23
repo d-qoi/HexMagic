@@ -55,7 +55,7 @@ void main()
 
 	if(shadingMode == 0) {
 		smoothNorm = normalIn / 2 + 0.5;
-		smoothColor = vec4(colorIn, 1);
+		smoothColor = vec4(smoothNorm, 1);
 	} else if(shadingMode == 1) {
 		flatColor = ambient + diffuse + specular;
 	} else if(shadingMode == 2) {

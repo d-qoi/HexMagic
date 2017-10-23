@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "glm/glm.hpp"
-#include "objload/objLoader.hpp"
+//#include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
 class Model
@@ -31,7 +31,6 @@ public:
 
     void init()
     {
-
 		vector<RectModel> rects = vector<RectModel>();
 
 		for(int i = 0; i < 8; i++) {
@@ -45,28 +44,13 @@ public:
 			}
 		}
 
-		objLoader loader;
-//		loader.load("resources/cube.obj");
-//		loader.load("resources/sphere.obj");
-//		loader.load("resources/teapot.obj");
-
-		//DONE Verify that the model has materials. If not, exit.
-//        if(loader.materialCount < 1) {
-//            printf("Object missing materials\n");
-//            exit(1);
-//        }
-
 		//DONE Add the OBJ vertices to the model position vector
         positions = vector<GLfloat>();
-//        for(int i = 0; i < loader.vertexCount; i++) {
-//            double *array = loader.vertexList[i]->e;
-//            positions.push_back(array[0]);
-//            positions.push_back(array[1]);
-//            positions.push_back(array[2]);
-//        }
-
 		elements = vector<GLuint>();
 		colors = vector<GLfloat>();
+
+		// 8 vertices in each rect
+		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
 
 		double width = .1;
 		for(int i = 0; i < rects.size(); i++) {
@@ -108,13 +92,30 @@ public:
 			positions.push_back(y + rectModel.zLength);
 			positions.push_back(z);
 
+			//DONE Loop over all faces and compute the normal for each vertex in the face.
 			for(int j = 0; j < 12; j++) {
-				elements.push_back(i * 8 + faces[j * 3]);
-				elements.push_back(i * 8 + faces[j * 3 + 1]);
-				elements.push_back(i * 8 + faces[j * 3 + 2]);
-			}
+				int vertex0Index = i * 8 + faces[j * 3];
+				int vertex1Index = i * 8 + faces[j * 3 + 1];
+				int vertex2Index = i * 8 + faces[j * 3 + 2];
 
-			for(int j = 0; j < 12; j++) {
+				glm::vec3 vertex0 = glm::vec3(positions[vertex0Index * 3], positions[vertex0Index * 3 + 1], positions[vertex0Index * 3 + 2]);
+				glm::vec3 vertex1 = glm::vec3(positions[vertex1Index * 3], positions[vertex1Index * 3 + 1], positions[vertex1Index * 3 + 2]);
+				glm::vec3 vertex2 = glm::vec3(positions[vertex2Index * 3], positions[vertex2Index * 3 + 1], positions[vertex2Index * 3 + 2]);
+
+				glm::vec3 edge0 = vertex1 - vertex0;
+				glm::vec3 edge1 = vertex2 - vertex1;
+
+				glm::vec3 normal = glm::cross(edge0, edge1);
+				normalVecs[vertex0Index] += normal;
+				normalVecs[vertex1Index] += normal;
+				normalVecs[vertex2Index] += normal;
+
+				//DONE Add each face's vertex indices to the element list
+				elements.push_back(vertex0Index);
+				elements.push_back(vertex1Index);
+				elements.push_back(vertex2Index);
+
+				//DONE Get the color attribute for each vertex
 				double color = i/64.0;
 
 				colors.push_back(color);
@@ -123,64 +124,10 @@ public:
 			}
 		}
 
-		//DONE Add each face's vertex indices to the element list
-//        elements = vector<GLuint>();
-//		colors = vector<GLfloat>();
-//        for(int i = 0; i < loader.faceCount; i++) {
-//            obj_face *face = loader.faceList[i];
-//
-//            //DONE Get the color attribute for each vertex
-//            //  Each face has a OBJ material index that you can use to get the material data.
-//            //  Use the diffuse component as the color.
-//            obj_material *material = loader.materialList[face->material_index];
-//
-//            for(int j = 0; j < face->vertex_count; j++) {
-//                elements.push_back(face->vertex_index[j]);
-//				colors.push_back(material->diff[0]);
-//				colors.push_back(material->diff[1]);
-//				colors.push_back(material->diff[2]);
-//            }
-//        }
-
-		//DONE Initialize a normal list. There is one normal per vertex
-		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
-        
-        //DONE Loop over all faces and compute the normal for each vertex in the face.
-		//  Accumulate the computed normals into the correct vertex normal
-//		for(int i = 0; i < loader.faceCount; i++) {
-//			obj_face *face = loader.faceList[i];
-//
-//			if(face->vertex_count != 3) {
-//				printf("ERROR: Face is not a triangle \n");
-//				return;
-//			}
-//
-//			int vertex0Index = face->vertex_index[0];
-//			int vertex1Index = face->vertex_index[1];
-//			int vertex2Index = face->vertex_index[2];
-//
-//			double *array0 = loader.vertexList[vertex0Index]->e;
-//			double *array1 = loader.vertexList[vertex1Index]->e;
-//			double *array2 = loader.vertexList[vertex2Index]->e;
-//
-//			glm::vec3 vertex0 = glm::vec3(array0[0], array0[1], array0[2]);
-//			glm::vec3 vertex1 = glm::vec3(array1[0], array1[1], array1[2]);
-//			glm::vec3 vertex2 = glm::vec3(array2[0], array2[1], array2[2]);
-//
-//			glm::vec3 edge0 = vertex1 - vertex0;
-//			glm::vec3 edge1 = vertex2 - vertex1;
-//
-//			glm::vec3 normal = glm::cross(edge0, edge1);
-//			normalVecs[vertex0Index] += normal;
-//			normalVecs[vertex1Index] += normal;
-//			normalVecs[vertex2Index] += normal;
-//		}
-
 		//DONE Loop over all the normals and make the unit length.
 		normals = vector<GLfloat>();
 		for(int i = 0; i < normalVecs.size(); i++) {
-//			glm::vec3 normal = glm::normalize(normalVecs[i]);
-			glm::vec3 normal = glm::vec3(1, 0, 0);
+			glm::vec3 normal = glm::normalize(normalVecs[i]);
 
 			normals.push_back(normal.x);
 			normals.push_back(normal.y);
