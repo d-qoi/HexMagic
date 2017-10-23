@@ -50,7 +50,7 @@ public:
 		printf("[%.2f %.2f %.2f] ", max[0], max[1], max[2]);
 		printf("= dim [%.2f %.2f %.2f]\n", dim[0], dim[1], dim[2]);
 		float camDistance = std::max(dim[0], dim[1]);
-		cameraPos = glm::vec3(0,max[1],camDistance*2);
+		cameraPos = glm::vec3(0,1,camDistance);
         cameraLook = glm::vec3(0,0,0);
         cameraUp = glm::vec3(0,1,0);
         
@@ -60,7 +60,7 @@ public:
         lightRotate = glm::mat4(1);
         lightIncrement = glm::rotate(glm::mat4(1), -0.05f, glm::vec3(0,1,0));
         
-        modelRotate = glm::mat4(1);
+        modelRotate = glm::rotate(glm::mat4(1), (float)(M_PI/4.0f), glm::vec3(0,1,0));
         modelIncrement = glm::rotate(glm::mat4(1), 0.02f, glm::vec3(0,1,0));
         modelTranslate = glm::translate(glm::mat4(1), -model.getCentroid());
 		
