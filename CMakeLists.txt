@@ -12,7 +12,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 # (you can also set it on the command line: -D CMAKE_BUILD_TYPE=Release)
 
-set(EXECUTABLE_NAME "Program6")
+set(EXECUTABLE_NAME "hexmagic")
 project(${EXECUTABLE_NAME})
 
 add_definitions ( -DEXEC_NAME="${EXECUTABLE_NAME}" )
