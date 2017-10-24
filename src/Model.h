@@ -12,8 +12,8 @@ public:
 	struct RectModel {
 		int x;
 		int y;
-		double zOffset;
-		double zLength;
+		int zOffset;
+		int zLength;
 	};
 
 	static const inline int faces[36] = {4, 0, 3,
@@ -39,7 +39,7 @@ public:
 				rectModel.x = i;
 				rectModel.y = j;
 				rectModel.zOffset = 0;
-				rectModel.zLength = .8;
+				rectModel.zLength = 80;
 				rects.push_back(rectModel);
 			}
 		}
@@ -48,6 +48,7 @@ public:
         positions = vector<GLfloat>();
 		elements = vector<GLuint>();
 		colors = vector<GLfloat>();
+
 		rectCoordinates = vector<GLuint>();
 
 		// 8 vertices in each rect
@@ -59,6 +60,11 @@ public:
 			double x = rectModel.x * width - width/2;
 			double z = rectModel.y * width - width/2;
 			double y = rectModel.zOffset;
+
+			double length = rectModel.zLength / 100.0;
+
+			rectOffsets[rectModel.y * 8 + rectModel.x] = rectModel.x + rectModel.y;
+			rectLengths[rectModel.y * 8 + rectModel.x] = rectModel.zLength;
 
 			// TODO: Refactor into loop
 			positions.push_back(x + width);
@@ -86,25 +92,25 @@ public:
 			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x + width);
-			positions.push_back(y + rectModel.zLength);
+			positions.push_back(y + length);
 			positions.push_back(z);
 			rectCoordinates.push_back(rectModel.x);
 			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x + width);
-			positions.push_back(y + rectModel.zLength);
+			positions.push_back(y + length);
 			positions.push_back(z + width);
 			rectCoordinates.push_back(rectModel.x);
 			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
-			positions.push_back(y + rectModel.zLength);
+			positions.push_back(y + length);
 			positions.push_back(z + width);
 			rectCoordinates.push_back(rectModel.x);
 			rectCoordinates.push_back(rectModel.y);
 
 			positions.push_back(x);
-			positions.push_back(y + rectModel.zLength);
+			positions.push_back(y + length);
 			positions.push_back(z);
 			rectCoordinates.push_back(rectModel.x);
 			rectCoordinates.push_back(rectModel.y);
@@ -171,6 +177,12 @@ public:
 
 	vector<GLuint> const getRectCoordinates() const
 	{ return rectCoordinates; }
+
+	GLuint * getRectOffsets()
+	{ return rectOffsets; }
+
+	GLuint * getRectLengths()
+	{ return rectLengths; }
 	
 	size_t getVertexCount() const
 	{ return positions.size()/3; }
@@ -189,6 +201,12 @@ public:
 
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getRectOffsetsBytes() const
+	{ return 8*8*sizeof(GLuint); }
+
+	size_t getRectLengthsBytes() const
+	{ return 8*8*sizeof(GLuint); }
     
     glm::vec3 getMinBound()
     { return min; }
@@ -270,6 +288,8 @@ private:
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
 	vector<GLuint> rectCoordinates;
+	GLuint rectOffsets[8*8];
+	GLuint rectLengths[8*8];
 	size_t objectCount;
     
     glm::vec3 min;

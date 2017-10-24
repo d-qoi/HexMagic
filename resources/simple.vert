@@ -12,6 +12,9 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
+uniform uint[8*8] offsets;
+uniform uint[8*8] lengths;
+
 in vec3 pos;
 in vec3 colorIn;
 in vec3 normalIn;
@@ -28,10 +31,14 @@ const vec3 ka = vec3(0.1, 0.1, 0.1);
 const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
 
+vec3 offsetPos(float x, float y) {
+	return vec3(0, offsets[int(x) + int(y) * 8], 0) * 0.02;
+}
+
 void main()
 {
 	//hack to preserve inputs/output
-	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + vec3(0, rectCoord.x + rectCoord.y, 0) * 0.02;
+	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offsetPos(rectCoord.x, rectCoord.y);
 	smoothPos = pos;
 	smoothNorm = normalIn;
 	

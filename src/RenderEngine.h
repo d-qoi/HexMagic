@@ -89,7 +89,10 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "lightPos"), 1, &lightPos[0]);
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
-		
+
+		glUniform1uiv(glGetUniformLocation(shaderProg, "offsets"), state.getModel().getRectOffsetsBytes(), state.getModel().getRectOffsets());
+		glUniform1uiv(glGetUniformLocation(shaderProg, "lengths"), state.getModel().getRectLengthsBytes(), state.getModel().getRectLengths());
+
 		//draw
 		glBindVertexArray(vertexArray);
 		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0);
@@ -110,7 +113,7 @@ public:
         glUniform4fv(glGetUniformLocation(lightProg, "lightPos"), 1, &lightPos[0]);
         glUniform4fv(glGetUniformLocation(lightProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(lightProg, "shadingMode"), state.getShadingMode());
-        
+
         glBindVertexArray(lightArray);
         glDrawArrays(GL_POINTS, 1, GL_UNSIGNED_INT);
         glBindVertexArray(0);
