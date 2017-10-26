@@ -12,9 +12,6 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-//uniform uint[8*8] offsets;
-//uniform uint[8*8] lengths;
-
 const int WIDTH = 8;
 
 struct RectModel {
@@ -46,8 +43,7 @@ const float specAlpha = 10;
 
 vec3 offsetPos(float x, float y) {
 	RectModel model = rects[int(y) * WIDTH + int(x)];
-	int offset = model.x + model.y;
-	return vec3(0, offset, 0) * 0.02;
+	return vec3(0, model.zOffset, 0) * 0.02;
 }
 
 void main()

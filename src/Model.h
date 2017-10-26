@@ -65,8 +65,7 @@ public:
 
 			double length = rectModel.zLength / 100.0;
 
-			rectOffsets[rectModel.y * 8 + rectModel.x] = rectModel.x + rectModel.y;
-			rectLengths[rectModel.y * 8 + rectModel.x] = rectModel.zLength;
+			rectModel.zOffset = rectModel.x + rectModel.y;
 
 			// TODO: Refactor into loop
 			positions.push_back(x + width);
@@ -147,6 +146,8 @@ public:
 				colors.push_back(color);
 				colors.push_back(color);
 			}
+
+			rects[i] = rectModel;
 		}
 
 		//DONE Loop over all the normals and make the unit length.
@@ -180,12 +181,6 @@ public:
 	vector<GLuint> const getRectCoordinates() const
 	{ return rectCoordinates; }
 
-	GLuint * getRectOffsets()
-	{ return rectOffsets; }
-
-	GLuint * getRectLengths()
-	{ return rectLengths; }
-
 	vector<RectModel> const getRects() const
 	{ return rects; }
 	
@@ -207,12 +202,6 @@ public:
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
 
-	size_t getRectOffsetsBytes() const
-	{ return 8*8*sizeof(GLuint); }
-
-	size_t getRectLengthsBytes() const
-	{ return 8*8*sizeof(GLuint); }
-    
     glm::vec3 getMinBound()
     { return min; }
     
@@ -293,8 +282,6 @@ private:
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
 	vector<GLuint> rectCoordinates;
-	GLuint rectOffsets[8*8];
-	GLuint rectLengths[8*8];
 
 	vector<RectModel> rects;
 

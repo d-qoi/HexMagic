@@ -92,9 +92,6 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
-		glUniform1uiv(glGetUniformLocation(shaderProg, "offsets"), state.getModel().getRectOffsetsBytes(), state.getModel().getRectOffsets());
-		glUniform1uiv(glGetUniformLocation(shaderProg, "lengths"), state.getModel().getRectLengthsBytes(), state.getModel().getRectLengths());
-
 		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
