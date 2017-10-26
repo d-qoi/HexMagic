@@ -103,6 +103,8 @@ private:
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 't'))
                 state.toggleLightRotate();
 		}
+
+		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
 	}
 	
 	void saveBuffer(sf::Window const & window)

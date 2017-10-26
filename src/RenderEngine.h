@@ -49,7 +49,7 @@ public:
 		float maxDim = std::max(dim[0], std::max(dim[1], dim[2]));
 		this->P = glm::perspective(1.0f, 1.0f, maxDim*0.01f, maxDim*10.0f);
         C = state.getCameraMatrix();
-		
+
 		setupShader();
 		setupBuffers(state.getModel());
 	}
@@ -99,7 +99,8 @@ public:
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
-        
+
+		printf("%d %d\n", state.getCursorX(), state.getCursorY());
         
         glUseProgram(lightProg);
         
@@ -270,6 +271,10 @@ private:
 		glBindVertexArray(0);
 
 		checkGLError("setup");
+	}
+
+	void mouseMoved(int x, int y) {
+		printf("%d, %d", x, y);
 	}
 };
 

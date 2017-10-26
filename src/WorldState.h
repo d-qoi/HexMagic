@@ -30,6 +30,9 @@ private:
 	bool lightRotating;
 	bool modelRotating;
 
+	int cursorX;
+	int cursorY;
+
 public:
 	WorldState()
 	{
@@ -157,6 +160,32 @@ public:
 	
 	void toggleLightRotate()
 	{ lightRotating = !lightRotating; }
+
+	void setCursorPos(sf::Vector2i pos, sf::Vector2u windowSize) {
+		int x = pos.x;
+		int y = pos.y;
+
+		if(x < 0) {
+			x = 0;
+		} else if(x > windowSize.x) {
+			x = windowSize.x;
+		}
+
+		if(y < 0) {
+			y = 0;
+		} else if(y > windowSize.y) {
+			y = windowSize.y;
+		}
+
+		this->cursorX = x;
+		this->cursorY = y;
+	}
+
+	int getCursorX()
+	{ return cursorX; }
+
+	int getCursorY()
+	{ return cursorY; }
 };
 
 #endif
