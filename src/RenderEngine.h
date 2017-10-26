@@ -67,6 +67,8 @@ public:
         glm::vec4 lightPos = state.getLightPos();
         glm::vec4 camPos = state.getCameraPos();
         glm::mat4 L = state.getLightRotate();
+
+		checkIntersection(state);
         
         //hacky light source size change
         GLfloat maxDis = state.getModel().getDimension()[2] * 3;
@@ -100,8 +102,6 @@ public:
 		glUseProgram(0);
         checkGLError("model");
 
-		printf("%f %f\n", state.getCursorX(), state.getCursorY());
-        
         glUseProgram(lightProg);
         
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "P"), 1, GL_FALSE, &P[0][0]);
@@ -120,6 +120,23 @@ public:
         glBindVertexArray(0);
         glUseProgram(0);
         checkGLError("light");
+	}
+
+	void checkIntersection(WorldState & state) {
+		printf("%f %f\n", state.getCursorX(), state.getCursorY());
+
+		glm::vec4 cursorPosition = glm::vec4(state.getCursorX(), state.getCursorY(), 0, 0);
+		cursorPosition = glm::normalize(glm::inverse(state.getModelTranslate()) * glm::inverse(state.getModelRotate()) * glm::inverse(C) * glm::inverse(P) * cursorPosition);
+		printf("%f %f %f\n", cursorPosition.x, cursorPosition.y, cursorPosition.z);
+
+		glm::vec4 ray = state.getCameraPos() - cursorPosition;
+
+		Model model = state.getModel();
+
+		glm::vec3 max = model.getMaxBound();
+		glm::vec3 min = model.getMinBound();
+
+		// TODO: Handle
 	}
 
 
