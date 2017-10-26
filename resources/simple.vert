@@ -12,8 +12,21 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-uniform uint[8*8] offsets;
-uniform uint[8*8] lengths;
+//uniform uint[8*8] offsets;
+//uniform uint[8*8] lengths;
+
+const int WIDTH = 8;
+
+struct RectModel {
+	int x;
+	int y;
+	int zOffset;
+	int zLength;
+};
+
+layout (std140) uniform RectBlock {
+	RectModel rects[WIDTH*WIDTH];
+};
 
 in vec3 pos;
 in vec3 colorIn;
@@ -32,7 +45,9 @@ const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
 
 vec3 offsetPos(float x, float y) {
-	return vec3(0, offsets[int(x) + int(y) * 8], 0) * 0.02;
+	RectModel model = rects[int(y) * WIDTH + int(x)];
+	int offset = model.x + model.y;
+	return vec3(0, offset, 0) * 0.02;
 }
 
 void main()
