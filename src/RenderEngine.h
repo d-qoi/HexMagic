@@ -100,7 +100,7 @@ public:
 		glUseProgram(0);
         checkGLError("model");
 
-		printf("%d %d\n", state.getCursorX(), state.getCursorY());
+		printf("%f %f\n", state.getCursorX(), state.getCursorY());
         
         glUseProgram(lightProg);
         
