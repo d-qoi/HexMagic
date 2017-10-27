@@ -6,16 +6,18 @@
 //#include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
+#define WIDTH 8
+
+struct RectModel {
+	int x;
+	int y;
+	int zOffset;
+	int zLength;
+};
+
 class Model
 {
 public:
-	struct RectModel {
-		int x;
-		int y;
-		int zOffset;
-		int zLength;
-	};
-
 	static const inline int faces[36] = {4, 0, 3,
 										4, 3, 7,
 										2, 6, 7,
@@ -31,13 +33,13 @@ public:
 
     void init()
     {
-		vector<RectModel> rects = vector<RectModel>();
+		rects = vector<RectModel>();
 
-		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
+		for(int i = 0; i < WIDTH; i++) {
+			for(int j = 0; j < WIDTH; j++) {
 				RectModel rectModel = RectModel();
-				rectModel.x = i;
-				rectModel.y = j;
+				rectModel.x = j;
+				rectModel.y = i;
 				rectModel.zOffset = 0;
 				rectModel.zLength = 80;
 				rects.push_back(rectModel);
@@ -63,8 +65,7 @@ public:
 
 			double length = rectModel.zLength / 100.0;
 
-			rectOffsets[rectModel.y * 8 + rectModel.x] = rectModel.x + rectModel.y;
-			rectLengths[rectModel.y * 8 + rectModel.x] = rectModel.zLength;
+			rectModel.zOffset = rectModel.x + rectModel.y;
 
 			// TODO: Refactor into loop
 			positions.push_back(x + width);
@@ -145,6 +146,8 @@ public:
 				colors.push_back(color);
 				colors.push_back(color);
 			}
+
+			rects[i] = rectModel;
 		}
 
 		//DONE Loop over all the normals and make the unit length.
@@ -178,11 +181,8 @@ public:
 	vector<GLuint> const getRectCoordinates() const
 	{ return rectCoordinates; }
 
-	GLuint * getRectOffsets()
-	{ return rectOffsets; }
-
-	GLuint * getRectLengths()
-	{ return rectLengths; }
+	vector<RectModel> const getRects() const
+	{ return rects; }
 	
 	size_t getVertexCount() const
 	{ return positions.size()/3; }
@@ -202,12 +202,6 @@ public:
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
 
-	size_t getRectOffsetsBytes() const
-	{ return 8*8*sizeof(GLuint); }
-
-	size_t getRectLengthsBytes() const
-	{ return 8*8*sizeof(GLuint); }
-    
     glm::vec3 getMinBound()
     { return min; }
     
@@ -288,8 +282,9 @@ private:
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
 	vector<GLuint> rectCoordinates;
-	GLuint rectOffsets[8*8];
-	GLuint rectLengths[8*8];
+
+	vector<RectModel> rects;
+
 	size_t objectCount;
     
     glm::vec3 min;

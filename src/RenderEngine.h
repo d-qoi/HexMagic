@@ -92,8 +92,9 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
-		glUniform1uiv(glGetUniformLocation(shaderProg, "offsets"), state.getModel().getRectOffsetsBytes(), state.getModel().getRectOffsets());
-		glUniform1uiv(glGetUniformLocation(shaderProg, "lengths"), state.getModel().getRectLengthsBytes(), state.getModel().getRectLengths());
+		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		//draw
 		glBindVertexArray(vertexArray);
@@ -146,6 +147,8 @@ private:
     GLuint lightProg;
 	GLuint vertexArray;
     GLuint lightArray;
+
+	GLuint rectBuffer;
 	
 	glm::mat4 P;
 	glm::mat4 C;
@@ -277,6 +280,15 @@ private:
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
 		//leave the element buffer active
         checkGLError("model setup");
+
+		GLuint uniformBlockIndexRects = glGetUniformBlockIndex(shaderProg, "RectBlock");
+		glUniformBlockBinding(shaderProg, uniformBlockIndexRects, 0);
+
+		glGenBuffers(1, &rectBuffer);
+		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(RectModel)*WIDTH*WIDTH, NULL, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, uniformBlockIndexRects, rectBuffer);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		
 		//hacky way to draw the light
         glGenVertexArrays(1, &lightArray);
