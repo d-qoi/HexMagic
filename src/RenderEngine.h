@@ -56,6 +56,9 @@ public:
 
 	void display(WorldState & state)
 	{
+		// Render to texture for picking
+		
+
 		//clear the old frame
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -123,6 +126,29 @@ public:
         checkGLError("light");
 	}
 
+	void buildRenderBuffers(size_t xSize, size_t ySize)
+	{
+		glGenTextures(1, &renderTexture);
+		glBindTexture(GL_TEXTURE_2D, renderTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xSize, ySize, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+		glGenFramebuffers(1, &frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+		glGenRenderbuffers(1, &renderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, xSize, ySize);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture, 0);
+
+		GLenum colorBuffer = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &colorBuffer);
+
+		glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	}
+
 	void checkIntersection(WorldState & state) {
 		printf("%f %f\n", state.getCursorX(), state.getCursorY());
 
@@ -143,8 +169,14 @@ public:
 
 private:
 	bool initialized;
+	GLuint pickTextureProg;
 	GLuint shaderProg;
     GLuint lightProg;
+
+	GLuint renderTexture;
+	GLuint frameBuffer;
+	GLuint renderBuffer;
+
 	GLuint vertexArray;
     GLuint lightArray;
 
@@ -189,10 +221,13 @@ private:
 
 	void setupShader()
 	{
+		char const * texVertPath = "resources/pickTexture.vert";
+		char const * texFragPath = "resources/pickTexture.frag";
+		pickTextureProg = ShaderManager::shaderFromFile(&texVertPath, &texFragPath, 1, 1);
+
 		char const * vertPath = "resources/simple.vert";
 		char const * fragPath = "resources/simple.frag";
 		shaderProg = ShaderManager::shaderFromFile(&vertPath, &fragPath, 1, 1);
-        
         
         char const * lightVPath = "resources/lightPos.vert";
 		char const * lightFPath = "resources/lightPos.frag";
