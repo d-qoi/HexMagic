@@ -117,9 +117,10 @@ public:
 			rectCoordinates.push_back(rectModel.y);
 
 			for(int j = 0; j < 8; j++) {
+				int index = i + 1;
 				// Add model id (the index) to each of the 8 verticies
-				modelIds.push_back(i / 255);
-				modelIds.push_back(i % 255);
+				modelIds.push_back(index / 255);
+				modelIds.push_back(index % 255);
 			}
 
 			//DONE Loop over all faces and compute the normal for each vertex in the face.

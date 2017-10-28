@@ -64,9 +64,9 @@ public:
 		glm::vec4 camPos = state.getCameraPos();
 		glm::mat4 L = state.getLightRotate();
 
-		// Render to texture for picking
+		// Render to framebuffer for picking
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glUseProgram(pickTextureProg);
@@ -88,25 +88,27 @@ public:
 		glUseProgram(0);
 		checkGLError("texture model");
 
+		glFlush();
+		glFinish();
+		checkIntersection(state);
+
 		// Render to display
 		//clear the old frame
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		checkIntersection(state);
-        
         //hacky light source size change
         GLfloat maxDis = state.getModel().getDimension()[2] * 3;
         GLfloat distScale = 1.0f / (glm::length(L*lightPos - camPos) / maxDis);
         glPointSize(glm::mix(1.0f, 10.0f, distScale));
-        
+
         //printf("cam %f %f %f\n", camPos[0], camPos[1], camPos[2]);
         //printf("light %f %f %f\n", lightPos[0], lightPos[1], lightPos[2]);
-		
+
 		//use shader
 		glUseProgram(shaderProg);
-        
+
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &P[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "C"), 1, GL_FALSE, &C[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "mR"), 1, GL_FALSE, &mR[0][0]);
@@ -129,8 +131,8 @@ public:
 		glUseProgram(0);
         checkGLError("model");
 
-        glUseProgram(lightProg);
-        
+		glUseProgram(lightProg);
+
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "P"), 1, GL_FALSE, &P[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "C"), 1, GL_FALSE, &C[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "mR"), 1, GL_FALSE, &mR[0][0]);
@@ -151,10 +153,6 @@ public:
 
 	void buildRenderBuffers(size_t xSize, size_t ySize)
 	{
-		glGenTextures(1, &renderTexture);
-		glBindTexture(GL_TEXTURE_2D, renderTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xSize, ySize, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
 		glGenFramebuffers(1, &frameBuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -164,29 +162,41 @@ public:
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
 
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture, 0);
+		glGenRenderbuffers(1, &idRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, idRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, xSize, ySize);
 
-		GLenum colorBuffer = GL_COLOR_ATTACHMENT0;
-		glDrawBuffers(1, &colorBuffer);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, idRenderBuffer);
 
-		glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			fprintf(stderr, "Frame buffer setup failed : ");
+			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if(status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+				fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+			//if(status == GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS)
+			//		fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n");
+			if(status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+				fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+			if(status == GL_FRAMEBUFFER_UNSUPPORTED)
+				fprintf(stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
+			exit(3);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		checkGLError("frame buffer");
 	}
 
 	void checkIntersection(WorldState & state) {
-		printf("%f %f\n", state.getCursorX(), state.getCursorY());
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-		glm::vec4 cursorPosition = glm::vec4(state.getCursorX(), state.getCursorY(), 0, 0);
-		cursorPosition = glm::normalize(glm::inverse(state.getModelTranslate()) * glm::inverse(state.getModelRotate()) * glm::inverse(C) * glm::inverse(P) * cursorPosition);
-		printf("%f %f %f\n", cursorPosition.x, cursorPosition.y, cursorPosition.z);
+		printf("Cursor: %f %f\n", state.getCursorX(), RESOLUTION - state.getCursorY());
 
-		glm::vec4 ray = state.getCameraPos() - cursorPosition;
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		unsigned char colorData[4];
+		glReadPixels(state.getCursorX(), RESOLUTION - state.getCursorY(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, colorData);
 
-		Model model = state.getModel();
-
-		glm::vec3 max = model.getMaxBound();
-		glm::vec3 min = model.getMinBound();
-
-		// TODO: Handle
+		printf("Read %d %d %d %d\n", colorData[0], colorData[1], colorData[2], colorData[3]);
 	}
 
 
@@ -196,9 +206,9 @@ private:
 	GLuint shaderProg;
     GLuint lightProg;
 
-	GLuint renderTexture;
 	GLuint frameBuffer;
 	GLuint renderBuffer;
+	GLuint idRenderBuffer;
 
 	GLuint vertexArray;
     GLuint lightArray;
@@ -284,6 +294,7 @@ private:
 		GLint rectCoordSlot;
 		
 		bool loaded = model.getPosition().size() > 0;
+
 		//setup position buffer
 		glGenBuffers(1, &positionBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -296,6 +307,45 @@ private:
 		glVertexAttribPointer(positionSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("p setup");
+
+		// Rect coords
+		glGenBuffers(1, &rectCoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, rectCoordBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getRectCoordinatesBytes(), &model.getRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		rectCoordSlot =    glGetAttribLocation(shaderProg, "rectCoord");
+		glEnableVertexAttribArray(rectCoordSlot);
+		glVertexAttribPointer(rectCoordSlot, 2, GL_INT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("rect coord setup");
+
+		// Do the same thing for the color data
+		glGenBuffers(1, &colorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getColorBytes(), &model.getColor()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		colorSlot =    glGetAttribLocation(shaderProg, "colorIn");
+		glEnableVertexAttribArray(colorSlot);
+		glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("color setup");
+
+		// And normals
+		glGenBuffers(1, &normalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getNormalBytes(), &model.getNormal()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		normalSlot =    glGetAttribLocation(shaderProg, "normalIn");
+		glEnableVertexAttribArray(normalSlot);
+		glVertexAttribPointer(normalSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("n setup");
 
 		glGenBuffers(1, &positionTextureBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
@@ -317,48 +367,10 @@ private:
 			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
 		modelIdSlot = glGetAttribLocation(pickTextureProg, "modelId");
 		glEnableVertexAttribArray(modelIdSlot);
-		glVertexAttribPointer(modelIdSlot, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(modelIdSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("model id setup");
 
-		// Do the same thing for the color data
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getColorBytes(), &model.getColor()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		colorSlot =    glGetAttribLocation(shaderProg, "colorIn");
-		glEnableVertexAttribArray(colorSlot);
-		glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("color setup");
-		// And normals
-		glGenBuffers(1, &normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getNormalBytes(), &model.getNormal()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		normalSlot =    glGetAttribLocation(shaderProg, "normalIn");
-		glEnableVertexAttribArray(normalSlot);
-		glVertexAttribPointer(normalSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("n setup");
-
-		// Rect coords
-		glGenBuffers(1, &rectCoordBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, rectCoordBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getRectCoordinatesBytes(), &model.getRectCoordinates()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		rectCoordSlot =    glGetAttribLocation(shaderProg, "rectCoord");
-		glEnableVertexAttribArray(rectCoordSlot);
-		glVertexAttribPointer(rectCoordSlot, 2, GL_INT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("rect coord setup");
-		
 		// now the elements
 		glGenBuffers(1, &elementBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
@@ -377,7 +389,7 @@ private:
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(RectModel)*WIDTH*WIDTH, NULL, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, uniformBlockIndexRects, rectBuffer);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		
+
 		//hacky way to draw the light
         glGenVertexArrays(1, &lightArray);
         glBindVertexArray(lightArray);
@@ -388,10 +400,6 @@ private:
 		glBindVertexArray(0);
 
 		checkGLError("setup");
-	}
-
-	void mouseMoved(int x, int y) {
-		printf("%d, %d", x, y);
 	}
 };
 

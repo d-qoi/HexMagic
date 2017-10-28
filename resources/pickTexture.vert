@@ -19,6 +19,6 @@ flat out vec4 flatColor;
 
 void main()
 {
-	gl_Position = P*C*L*vec4(pos, 1);
-	flatColor = vec4(modelId.x, modelId.y,0,0);
+	gl_Position = P * M * vec4(pos, 1);
+	flatColor = vec4(modelId.x/255.0, modelId.y/255.0,0,0);
 }
