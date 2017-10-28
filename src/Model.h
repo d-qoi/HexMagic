@@ -13,6 +13,10 @@ struct RectModel {
 	int y;
 	int zOffset;
 	int zLength;
+	int highlighted;
+	int padding;
+	int padding2;
+	int padding3;
 };
 
 class Model
@@ -42,6 +46,10 @@ public:
 				rectModel.y = i;
 				rectModel.zOffset = 0;
 				rectModel.zLength = 80;
+				rectModel.highlighted = 0;
+				rectModel.padding = 0;
+				rectModel.padding2 = 0;
+				rectModel.padding3 = 0;
 				rects.push_back(rectModel);
 			}
 		}
@@ -171,6 +179,19 @@ public:
         max = computeMaxBound();
         center = computeCentroid();
         dim = computeDimension();
+	}
+
+	void setHighlight(int index)
+	{
+		RectModel model = rects[index];
+		model.highlighted = 1;
+		rects[index] = model;
+	}
+
+	void clearHighlight(int index) {
+		RectModel model = rects[index];
+		model.highlighted = 0;
+		rects[index] = model;
 	}
 
 	vector<GLfloat> const getPosition() const
