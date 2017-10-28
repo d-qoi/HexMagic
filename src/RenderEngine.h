@@ -56,20 +56,43 @@ public:
 
 	void display(WorldState & state)
 	{
-		// Render to texture for picking
-		
-
-		//clear the old frame
-		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        glm::mat4 mT = state.getModelTranslate();
-        glm::mat4 mR = state.getModelRotate();
+		glm::mat4 mT = state.getModelTranslate();
+		glm::mat4 mR = state.getModelRotate();
 		glm::mat4 M = C*mR*mT;
 		glm::mat3 N = glm::inverseTranspose(glm::mat3(M));
-        glm::vec4 lightPos = state.getLightPos();
-        glm::vec4 camPos = state.getCameraPos();
-        glm::mat4 L = state.getLightRotate();
+		glm::vec4 lightPos = state.getLightPos();
+		glm::vec4 camPos = state.getCameraPos();
+		glm::mat4 L = state.getLightRotate();
+
+		// Render to texture for picking
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glUseProgram(pickTextureProg);
+
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &P[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "C"), 1, GL_FALSE, &C[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mR"), 1, GL_FALSE, &mR[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mT"), 1, GL_FALSE, &mT[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "M"), 1, GL_FALSE, &M[0][0]);
+		glUniformMatrix3fv(glGetUniformLocation(pickTextureProg, "N"), 1, GL_FALSE, &N[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "L"), 1, GL_FALSE, &L[0][0]);
+		glUniform4fv(glGetUniformLocation(pickTextureProg, "lightPos"), 1, &lightPos[0]);
+		glUniform4fv(glGetUniformLocation(pickTextureProg, "camPos"), 1, &camPos[0]);
+		glUniform1i(glGetUniformLocation(pickTextureProg, "shadingMode"), state.getShadingMode());
+
+		glBindVertexArray(vertexArray);
+		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glUseProgram(0);
+		checkGLError("texture model");
+
+		// Render to display
+		//clear the old frame
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		checkIntersection(state);
         
@@ -247,9 +270,15 @@ private:
 		GLuint elementBuffer;
 		GLuint lightBuffer;
 
+		GLuint positionTextureBuffer;
+		GLuint modelIdBuffer;
+
         GLint colorSlot;
 		GLint normalSlot;
         GLint positionSlot;
+
+		GLint positionTextureSlot;
+		GLint modelIdSlot;
 
 		GLuint rectCoordBuffer;
 		GLint rectCoordSlot;
@@ -267,6 +296,30 @@ private:
 		glVertexAttribPointer(positionSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("p setup");
+
+		glGenBuffers(1, &positionTextureBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
+		if(loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), &model.getPosition()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		positionTextureSlot = glGetAttribLocation(pickTextureProg, "pos");
+		glEnableVertexAttribArray(positionTextureSlot);
+		glVertexAttribPointer(positionTextureSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("p texture setup");
+
+		glGenBuffers(1, &modelIdBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, modelIdBuffer);
+		if(loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getModelIdBytes(), &model.getModelIds()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		modelIdSlot = glGetAttribLocation(pickTextureProg, "modelId");
+		glEnableVertexAttribArray(modelIdSlot);
+		glVertexAttribPointer(modelIdSlot, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("model id setup");
 
 		// Do the same thing for the color data
 		glGenBuffers(1, &colorBuffer);

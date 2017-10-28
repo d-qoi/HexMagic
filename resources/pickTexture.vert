@@ -13,13 +13,12 @@ uniform vec4 camPos;
 uniform int shadingMode;
 
 in vec3 pos;
-in vec3 colorIn;
+in vec2 modelId;
 
-out vec4 smoothColor;
+flat out vec4 flatColor;
 
 void main()
 {
-	//hacky easy way to draw the light position
-	gl_Position = P*C*L*lightPos;
-	smoothColor = vec4(1,1,1,1);
+	gl_Position = P*C*L*vec4(pos, 1);
+	flatColor = vec4(modelId.x, modelId.y,0,0);
 }

@@ -12,11 +12,11 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-in vec4 smoothColor;
+flat in vec4 flatColor;
 
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = smoothColor;
+	fragColor = flatColor;
 }
