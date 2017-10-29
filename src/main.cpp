@@ -1,5 +1,5 @@
 //DONE Replace with your usernames!
-#define printusers() printf("Program by gastinad\n");
+#define printusers() printf("Program by Hex Magic\n");
 
 #define _CRT_SECURE_NO_WARNINGS
 #define RESOLUTION 512
@@ -27,10 +27,10 @@
 #include "WorldState.h"
 #include "simplePNG.h"
 
-class Program4
+class HexMagic
 {
 public:
-	Program4()
+	HexMagic()
 	{
 		getWindowContext();
 
@@ -148,7 +148,7 @@ private:
 int main()
 {
 	printusers();
-	Program4 prog;
+	HexMagic prog;
 	
     return EXIT_SUCCESS;
 }

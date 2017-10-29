@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "glm/glm.hpp"
-//#include "objload/objLoader.hpp"
+#include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
 #define WIDTH 8
@@ -18,21 +18,15 @@ struct RectModel {
 class Model
 {
 public:
-	static const inline int faces[36] = {4, 0, 3,
-										4, 3, 7,
-										2, 6, 7,
-										2, 7, 3,
-										1, 5, 2,
-										5, 6, 2,
-										0, 4, 1,
-										4, 5, 1,
-										4, 7, 5,
-										7, 6, 5,
-										0, 1, 2,
-										0, 2, 3};
+
 
     void init()
     {
+    	objLoader loader;
+    	loader.load("resources/cube.obj"); // This is going to assume that everything is between -0.5 and .5, Allowing for offsets, maybe? Later?
+		if (loader.materialCount == 0)
+			exit(EXIT_FAILURE);
+
 		rects = vector<RectModel>();
 
 		for(int i = 0; i < WIDTH; i++) {
@@ -47,107 +41,59 @@ public:
 		}
 
 		//DONE Add the OBJ vertices to the model position vector
-        positions = vector<GLfloat>();
-		elements = vector<GLuint>();
-		colors = vector<GLfloat>();
+        positions = vector<GLfloat>(); // Verted
+		elements = vector<GLuint>(); // Faces
+		colors = vector<GLfloat>(); // Colors
 
 		rectCoordinates = vector<GLuint>();
 
 		// 8 vertices in each rect
 		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
 
-		double width = .1;
 		for(int i = 0; i < rects.size(); i++) {
-			RectModel rectModel = rects[i];
-			double x = rectModel.x * width - width/2;
-			double z = rectModel.y * width - width/2;
-			double y = rectModel.zOffset;
+			RectModel rect = rects[i];
+			int curX = rect.x;
+			int curY = rect.y;
+			int offsetX = curX*2;
+			int offsetY = curY*2;
 
-			double length = rectModel.zLength / 100.0;
+			printf("Rect: %d :: x: %d, y: %d\n", i, rect.x, rect.y);
 
-			rectModel.zOffset = rectModel.x + rectModel.y;
-
-			// TODO: Refactor into loop
-			positions.push_back(x + width);
-			positions.push_back(y);
-			positions.push_back(z);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x + width);
-			positions.push_back(y);
-			positions.push_back(z + width);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x);
-			positions.push_back(y);
-			positions.push_back(z + width);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x);
-			positions.push_back(y);
-			positions.push_back(z);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x + width);
-			positions.push_back(y + length);
-			positions.push_back(z);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x + width);
-			positions.push_back(y + length);
-			positions.push_back(z + width);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x);
-			positions.push_back(y + length);
-			positions.push_back(z + width);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			positions.push_back(x);
-			positions.push_back(y + length);
-			positions.push_back(z);
-			rectCoordinates.push_back(rectModel.x);
-			rectCoordinates.push_back(rectModel.y);
-
-			//DONE Loop over all faces and compute the normal for each vertex in the face.
-			for(int j = 0; j < 12; j++) {
-				int vertex0Index = i * 8 + faces[j * 3];
-				int vertex1Index = i * 8 + faces[j * 3 + 1];
-				int vertex2Index = i * 8 + faces[j * 3 + 2];
-
-				glm::vec3 vertex0 = glm::vec3(positions[vertex0Index * 3], positions[vertex0Index * 3 + 1], positions[vertex0Index * 3 + 2]);
-				glm::vec3 vertex1 = glm::vec3(positions[vertex1Index * 3], positions[vertex1Index * 3 + 1], positions[vertex1Index * 3 + 2]);
-				glm::vec3 vertex2 = glm::vec3(positions[vertex2Index * 3], positions[vertex2Index * 3 + 1], positions[vertex2Index * 3 + 2]);
-
-				glm::vec3 edge0 = vertex1 - vertex0;
-				glm::vec3 edge1 = vertex2 - vertex1;
-
-				glm::vec3 normal = glm::cross(edge0, edge1);
-				normalVecs[vertex0Index] += normal;
-				normalVecs[vertex1Index] += normal;
-				normalVecs[vertex2Index] += normal;
-
-				//DONE Add each face's vertex indices to the element list
-				elements.push_back(vertex0Index);
-				elements.push_back(vertex1Index);
-				elements.push_back(vertex2Index);
-
-				//DONE Get the color attribute for each vertex
-				double color = i/64.0;
-
-				colors.push_back(color);
-				colors.push_back(color);
-				colors.push_back(color);
+			int offset = positions.size();
+			for (int j = 0; j < loader.vertexCount; j++) {
+				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + offsetX));
+				positions.push_back(GLfloat(loader.vertexList[j]->e[1] - rect.zLength));
+				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + offsetY));
 			}
 
-			rects[i] = rectModel;
+			for (int j = 0; j < loader.faceCount; j++) {
+				elements.push_back(GLuint(loader.faceList[j]->vertex_index[0] + offset));
+				elements.push_back(GLuint(loader.faceList[j]->vertex_index[1] + offset));
+				elements.push_back(GLuint(loader.faceList[j]->vertex_index[2] + offset));
+			}
+
+			vector<glm::vec3> normalList;
+			for (int j = 0; j < loader.vertexCount; j++) {
+				normalList.push_back(glm::vec3(0));
+			}
+
+			for(int j = 0; j<loader.faceCount; j++) {
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+				glm::vec3 v0 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
+						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
+						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]);
+				glm::vec3 v1 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
+						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
+						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]);
+				glm::vec3 v2 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
+						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
+						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]);
+				normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
+				normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
+				normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
+			}
 		}
 
 		//DONE Loop over all the normals and make the unit length.
@@ -164,6 +110,10 @@ public:
         max = computeMaxBound();
         center = computeCentroid();
         dim = computeDimension();
+
+        for (int i = 0; i<positions.size(); i++) {
+        	printf("Position %d:: %f\n", i, positions[i]);
+        }
 	}
 
 	vector<GLfloat> const getPosition() const

@@ -124,11 +124,11 @@ public:
 	}
 
 	void checkIntersection(WorldState & state) {
-		printf("%f %f\n", state.getCursorX(), state.getCursorY());
+		printf("Mouse Pos: %f %f\n", state.getCursorX(), state.getCursorY());
 
 		glm::vec4 cursorPosition = glm::vec4(state.getCursorX(), state.getCursorY(), 0, 0);
 		cursorPosition = glm::normalize(glm::inverse(state.getModelTranslate()) * glm::inverse(state.getModelRotate()) * glm::inverse(C) * glm::inverse(P) * cursorPosition);
-		printf("%f %f %f\n", cursorPosition.x, cursorPosition.y, cursorPosition.z);
+		printf("Cursor Pos: %f %f %f\n", cursorPosition.x, cursorPosition.y, cursorPosition.z);
 
 		glm::vec4 ray = state.getCameraPos() - cursorPosition;
 
@@ -245,6 +245,7 @@ private:
 		glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("color setup");
+
 		// And normals
 		glGenBuffers(1, &normalBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
