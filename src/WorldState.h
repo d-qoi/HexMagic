@@ -180,8 +180,8 @@ public:
 			y = windowY;
 		}
 
-		this->cursorX = x/windowX;
-		this->cursorY = y/windowY;
+		this->cursorX = x;
+		this->cursorY = y;
 	}
 
 	double getCursorX()

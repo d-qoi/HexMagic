@@ -36,7 +36,8 @@ public:
 
 		WorldState state;
 		render.init(state);
-		
+		render.buildRenderBuffers(App->getSize().x, App->getSize().y);
+
 		previousPos = glm::vec2(0);
 		buttonDown[0]=false;
 		buttonDown[1]=false;

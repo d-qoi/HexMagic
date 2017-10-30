@@ -6,13 +6,17 @@
 #include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
-#define WIDTH 64
+#define WIDTH 4
 
 struct RectModel {
 	int x;
 	int y;
 	int zOffset;
 	int zLength;
+	int highlighted;
+	int padding;
+	int padding2;
+	int padding3;
 };
 
 class Model
@@ -36,6 +40,10 @@ public:
 				rectModel.y = i;
 				rectModel.zOffset = 0;
 				rectModel.zLength = 80;
+				rectModel.highlighted = 0;
+				rectModel.padding = 0;
+				rectModel.padding2 = 0;
+				rectModel.padding3 = 0;
 				rects.push_back(rectModel);
 			}
 		}
@@ -53,21 +61,21 @@ public:
 		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
 
 		for(int i = 0; i < rects.size(); i++) {
-			RectModel rect = rects[i];
-			int curX = rect.x;
-			int curY = rect.y;
-			int offsetX = curX*2;
-			int offsetY = curY*2;
 
-			printf("Rect: %d :: x: %d, y: %d\n", i, rect.x, rect.y);
+			rects[i].zOffset = rects[i].x + rects[i].y;
+			int xOffset = rects[i]*2;
+			int zOffset = rects[i]*2;
+			int yOffset = rects[i].zOffset;
 
 			int positionOffset = positions.size();
 			for (int j = 0; j < loader.vertexCount; j++) {
-				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + offsetX));
-				positions.push_back(GLfloat(loader.vertexList[j]->e[1]));
-				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + offsetY));
-				rectCoordinates.push_back(curX);
-				rectCoordinates.push_back(curY);
+				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + xOffset));
+				positions.push_back(GLfloat(loader.vertexList[j]->e[1] + yOffset)); //
+				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + zOffset));
+				rectCoordinates.push_back(rects[i].x);
+				rectCoordinates.push_back(rects[i].y);
+				modelIds.push_back(i+1 / 255);
+				modelIds.push_back(i+1 % 255);
 			}
 
 			int elementOffset = elements.size();
@@ -120,6 +128,19 @@ public:
         dim = computeDimension();
 	}
 
+	void setHighlight(int index)
+	{
+		RectModel model = rects[index];
+		model.highlighted = 1;
+		rects[index] = model;
+	}
+
+	void clearHighlight(int index) {
+		RectModel model = rects[index];
+		model.highlighted = 0;
+		rects[index] = model;
+	}
+
 	vector<GLfloat> const getPosition() const
 	{ return positions; }
 	
@@ -137,6 +158,9 @@ public:
 
 	vector<RectModel> const getRects() const
 	{ return rects; }
+
+	vector<GLuint> const getModelIds() const
+	{ return modelIds; }
 	
 	size_t getVertexCount() const
 	{ return positions.size()/3; }
@@ -155,6 +179,9 @@ public:
 
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getModelIdBytes() const
+	{ return modelIds.size()*sizeof(GLuint); }
 
     glm::vec3 getMinBound()
     { return min; }
@@ -235,6 +262,7 @@ private:
 	vector<GLfloat> colors;
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
+	vector<GLuint> modelIds;
 	vector<GLuint> rectCoordinates;
 
 	vector<RectModel> rects;
