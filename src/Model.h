@@ -63,8 +63,8 @@ public:
 		for(int i = 0; i < rects.size(); i++) {
 
 			rects[i].zOffset = rects[i].x + rects[i].y;
-			int xOffset = rects[i]*2;
-			int zOffset = rects[i]*2;
+			int xOffset = rects[i].x*2;
+			int zOffset = rects[i].y*2;
 			int yOffset = rects[i].zOffset;
 
 			int positionOffset = positions.size();
