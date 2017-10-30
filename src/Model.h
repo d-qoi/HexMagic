@@ -6,7 +6,7 @@
 #include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
-#define WIDTH 8
+#define WIDTH 64
 
 struct RectModel {
 	int x;
@@ -45,6 +45,8 @@ public:
 		elements = vector<GLuint>(); // Faces
 		colors = vector<GLfloat>(); // Colors
 
+		normals = vector<GLfloat>();
+
 		rectCoordinates = vector<GLuint>();
 
 		// 8 vertices in each rect
@@ -59,61 +61,61 @@ public:
 
 			printf("Rect: %d :: x: %d, y: %d\n", i, rect.x, rect.y);
 
-			int offset = positions.size();
+			int positionOffset = positions.size();
 			for (int j = 0; j < loader.vertexCount; j++) {
 				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + offsetX));
-				positions.push_back(GLfloat(loader.vertexList[j]->e[1] - rect.zLength));
+				positions.push_back(GLfloat(loader.vertexList[j]->e[1]));
 				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + offsetY));
 			}
 
+			int elementOffset = elements.size();
 			for (int j = 0; j < loader.faceCount; j++) {
-				elements.push_back(GLuint(loader.faceList[j]->vertex_index[0] + offset));
-				elements.push_back(GLuint(loader.faceList[j]->vertex_index[1] + offset));
-				elements.push_back(GLuint(loader.faceList[j]->vertex_index[2] + offset));
-			}
+				elements.push_back(GLuint((loader.faceList[j]->vertex_index[0]) + positionOffset/3));
+				elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
+				elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
 
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
+				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+			}
 			vector<glm::vec3> normalList;
 			for (int j = 0; j < loader.vertexCount; j++) {
 				normalList.push_back(glm::vec3(0));
 			}
 
 			for(int j = 0; j<loader.faceCount; j++) {
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
-				glm::vec3 v0 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
+				glm::vec3 v0 = glm::vec3(
+						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
 						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]);
-				glm::vec3 v1 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
+						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]
+				);
+				glm::vec3 v1 = glm::vec3(
+						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
 						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]);
-				glm::vec3 v2 = glm::vec3(loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
+						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]
+				);
+				glm::vec3 v2 = glm::vec3(
+						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
 						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]);
+						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]
+				);
+
 				normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
 				normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
 				normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
 			}
-		}
-
-		//DONE Loop over all the normals and make the unit length.
-		normals = vector<GLfloat>();
-		for(int i = 0; i < normalVecs.size(); i++) {
-			glm::vec3 normal = glm::normalize(normalVecs[i]);
-
-			normals.push_back(normal.x);
-			normals.push_back(normal.y);
-			normals.push_back(normal.z);
+			for (int i = 0; i < normalList.size(); i++) {
+				glm::vec3 norm = glm::normalize(normalList[i]);
+				normals.push_back(norm.x);
+				normals.push_back(norm.y);
+				normals.push_back(norm.z);
+			}
 		}
 
         min = computeMinBound();
         max = computeMaxBound();
         center = computeCentroid();
         dim = computeDimension();
-
-        for (int i = 0; i<positions.size(); i++) {
-        	printf("Position %d:: %f\n", i, positions[i]);
-        }
 	}
 
 	vector<GLfloat> const getPosition() const
