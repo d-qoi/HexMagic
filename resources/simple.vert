@@ -19,6 +19,10 @@ struct RectModel {
 	int y;
 	int zOffset;
 	int zLength;
+	int highlighted;
+	int padding;
+	int padding2;
+	int padding3;
 };
 
 layout (std140) uniform RectBlock {
@@ -41,18 +45,27 @@ const vec3 ka = vec3(0.1, 0.1, 0.1);
 const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
 
-vec3 offsetPos(float x, float y) {
-	RectModel model = rects[int(y) * WIDTH + int(x)];
-	return vec3(0, model.zOffset, 0) * 0.02;
+RectModel getModel() {
+	return rects[int(rectCoord.y) * WIDTH + int(rectCoord.x)];
+}
+
+vec3 offsetPos() {
+	return vec3(0, getModel().zOffset, 0) * 0.02;
 }
 
 void main()
 {
 	//hack to preserve inputs/output
-	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offsetPos(rectCoord.x, rectCoord.y);
+	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offsetPos();
 	smoothPos = pos;
 	smoothNorm = normalIn;
-	
+
+	vec3 color = colorIn;
+
+	if(getModel().highlighted != 0) {
+		color = vec3(1,0,0);
+	}
+
 	vec4 p = M * vec4(mpos, 1);
 	gl_Position = P*p;
 
@@ -66,7 +79,7 @@ void main()
 	float dotProduct = dot(normal, incident);
 	vec4 ambient = vec4(ka * lightIntensity, 1);
 
-	vec4 diffuse = vec4(colorIn * lightIntensity * dotProduct, 1);
+	vec4 diffuse = vec4(color * lightIntensity * dotProduct, 1);
 
 	vec4 normalReflect = -normalize(incident - 2 * dotProduct * normal);
 	float specDot = max(0.0, dot(viewer, normalReflect));
@@ -80,6 +93,6 @@ void main()
 	} else if(shadingMode == 2) {
 		smoothColor = ambient + diffuse + specular;
 	} else {
-		flatDiffuseColor = colorIn;
+		flatDiffuseColor = color;
 	}
 }

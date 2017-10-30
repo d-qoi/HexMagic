@@ -13,6 +13,10 @@ struct RectModel {
 	int y;
 	int zOffset;
 	int zLength;
+	int highlighted;
+	int padding;
+	int padding2;
+	int padding3;
 };
 
 class Model
@@ -42,6 +46,10 @@ public:
 				rectModel.y = i;
 				rectModel.zOffset = 0;
 				rectModel.zLength = 80;
+				rectModel.highlighted = 0;
+				rectModel.padding = 0;
+				rectModel.padding2 = 0;
+				rectModel.padding3 = 0;
 				rects.push_back(rectModel);
 			}
 		}
@@ -116,6 +124,13 @@ public:
 			rectCoordinates.push_back(rectModel.x);
 			rectCoordinates.push_back(rectModel.y);
 
+			for(int j = 0; j < 8; j++) {
+				int index = i + 1;
+				// Add model id (the index) to each of the 8 verticies
+				modelIds.push_back(index / 255);
+				modelIds.push_back(index % 255);
+			}
+
 			//DONE Loop over all faces and compute the normal for each vertex in the face.
 			for(int j = 0; j < 12; j++) {
 				int vertex0Index = i * 8 + faces[j * 3];
@@ -166,6 +181,19 @@ public:
         dim = computeDimension();
 	}
 
+	void setHighlight(int index)
+	{
+		RectModel model = rects[index];
+		model.highlighted = 1;
+		rects[index] = model;
+	}
+
+	void clearHighlight(int index) {
+		RectModel model = rects[index];
+		model.highlighted = 0;
+		rects[index] = model;
+	}
+
 	vector<GLfloat> const getPosition() const
 	{ return positions; }
 	
@@ -183,6 +211,9 @@ public:
 
 	vector<RectModel> const getRects() const
 	{ return rects; }
+
+	vector<GLuint> const getModelIds() const
+	{ return modelIds; }
 	
 	size_t getVertexCount() const
 	{ return positions.size()/3; }
@@ -201,6 +232,9 @@ public:
 
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getModelIdBytes() const
+	{ return modelIds.size()*sizeof(GLuint); }
 
     glm::vec3 getMinBound()
     { return min; }
@@ -281,6 +315,7 @@ private:
 	vector<GLfloat> colors;
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
+	vector<GLuint> modelIds;
 	vector<GLuint> rectCoordinates;
 
 	vector<RectModel> rects;
