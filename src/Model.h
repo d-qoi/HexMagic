@@ -66,6 +66,8 @@ public:
 				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + offsetX));
 				positions.push_back(GLfloat(loader.vertexList[j]->e[1]));
 				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + offsetY));
+				rectCoordinates.push_back(curX);
+				rectCoordinates.push_back(curY);
 			}
 
 			int elementOffset = elements.size();
