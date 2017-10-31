@@ -58,6 +58,7 @@ public:
 
 	void display(WorldState & state)
 	{
+		this->C = state.getCameraMatrix();
 		glm::mat4 mT = state.getModelTranslate();
 		glm::mat4 mR = state.getModelRotate();
 		glm::mat4 M = C*mR*mT;

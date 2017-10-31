@@ -1,5 +1,7 @@
 #ifndef __WORLDSTATE_H
 #define __WORLDSTATE_H
+#include <stdio.h>
+#include "glm/ext.hpp"
 #include "Model.h"
 
 #define NUM_TRACKED_FRAMES 10
@@ -16,6 +18,9 @@ private:
     glm::vec3 cameraPos;
     glm::vec3 cameraLook;
     glm::vec3 cameraUp;
+    float camPitch;
+    float camYaw;
+    float camDistance;
     
     glm::vec4 lightPos;
     glm::vec3 lightIntensity;
@@ -52,7 +57,9 @@ public:
 		printf("[%.2f %.2f %.2f]..", min[0], min[1], min[2]);
 		printf("[%.2f %.2f %.2f] ", max[0], max[1], max[2]);
 		printf("= dim [%.2f %.2f %.2f]\n", dim[0], dim[1], dim[2]);
-		float camDistance = std::max(dim[0], dim[1]);
+		camDistance = std::max(dim[0], dim[1]);
+		camPitch = 0;
+		camYaw = 0;
 		cameraPos = glm::vec3(0,1,camDistance);
         cameraLook = glm::vec3(0,0,0);
         cameraUp = glm::vec3(0,1,0);
@@ -69,6 +76,11 @@ public:
 		
 		lightRotating = false;
 		modelRotating = false;
+
+		// to get rid of other errors
+		currentTime = 0;
+		cursorX = 0;
+		cursorY = 0;
 	}
 	
 	void updateFrameTime(float timeAsSeconds)
@@ -189,6 +201,36 @@ public:
 
 	double getCursorY()
 	{ return cursorY; }
+
+	void moveCamera(double x, double y, double z) {
+		printf("Move Camera\n");
+		this->cameraPos += glm::vec3(x, y, z);
+		this->cameraLook += glm::vec3(x, y, z);
+	}
+	void moveCameraForward(float amount) {
+		glm::vec3 diff = amount * glm::normalize(this->cameraLook - this->cameraPos);
+		this->cameraPos += diff;
+		this->cameraLook += diff;
+	}
+	void moveCameraLook(float pitch, float yaw) {
+		glm::mat4 base = glm::mat4(1.0f);
+		glm::vec4 camBase = glm::vec4(cameraPos.x, cameraPos.y, cameraPos.z-camDistance, 1) - glm::vec4(cameraPos, 1);
+		this->camPitch += pitch;
+		this->camYaw += yaw;
+
+		glm::mat4 rotPitch = glm::rotate(base, this->camPitch, glm::vec3(1, 0, 0));
+		glm::mat4 rotYaw = glm::rotate(base, this->camYaw, glm::vec3(0, 1, 0));
+
+		glm::vec4 cameraLook = (rotYaw * rotPitch * camBase) + glm::vec4(cameraPos, 1);
+
+
+		this->cameraLook = glm::vec3(cameraLook.x, cameraLook.y, cameraLook.z);
+
+
+	}
+	void setCameraLook(double pitch, double yaw) {
+
+	}
 };
 
 #endif
