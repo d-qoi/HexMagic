@@ -74,8 +74,8 @@ public:
 				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + zOffset));
 				rectCoordinates.push_back(rects[i].x);
 				rectCoordinates.push_back(rects[i].y);
-				modelIds.push_back(i+1 / 255);
-				modelIds.push_back(i+1 % 255);
+				modelIds.push_back((i+1) / 255);
+				modelIds.push_back((i+1) % 255);
 			}
 
 			int elementOffset = elements.size();
@@ -84,9 +84,12 @@ public:
 				elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
 				elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
 
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
-				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
+//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
+//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+				colors.push_back(i/64.0);
+				colors.push_back(i/64.0);
+				colors.push_back(i/64.0);
 			}
 			vector<glm::vec3> normalList;
 			for (int j = 0; j < loader.vertexCount; j++) {

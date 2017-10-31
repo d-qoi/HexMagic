@@ -103,6 +103,20 @@ private:
                 state.toggleModelRotate();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 't'))
                 state.toggleLightRotate();
+
+
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))
+				state.moveCameraLook(0.1f, 0);
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::E))
+				state.moveCameraLook(-0.1f, 0);
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::W))
+				state.moveCameraForward(0.1);
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::A))
+				state.moveCameraLook(0, 0.01);
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::S))
+				state.moveCameraForward(-0.1);
+			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D))
+				state.moveCameraLook(0, -0.01);
 		}
 
 		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
