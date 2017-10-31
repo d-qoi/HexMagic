@@ -170,12 +170,12 @@ public:
 
 		if(x < 0) {
 			x = 0;
-		} else if(x > windowSize.x) {
-			x = windowX;
+		} else if(x >= windowSize.x) {
+			x = windowX-1;
 		}
 
-		if(y < 0) {
-			y = 0;
+		if(y <= 0) {
+			y = 0 + 1;
 		} else if(y > windowSize.y) {
 			y = windowY;
 		}

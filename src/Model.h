@@ -22,8 +22,6 @@ struct RectModel {
 class Model
 {
 public:
-
-
     void init()
     {
     	objLoader loader;
@@ -74,8 +72,8 @@ public:
 				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + zOffset));
 				rectCoordinates.push_back(rects[i].x);
 				rectCoordinates.push_back(rects[i].y);
-				modelIds.push_back(i+1 / 255);
-				modelIds.push_back(i+1 % 255);
+				modelIds.push_back((i+1) / 255);
+				modelIds.push_back((i+1) % 255);
 			}
 
 			int elementOffset = elements.size();
