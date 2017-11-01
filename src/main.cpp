@@ -140,15 +140,15 @@ private:
 			glm::ivec2 newPos = glm::ivec2(sf::Mouse::getPosition(*App).x, sf::Mouse::getPosition(*App).y);
 
 			if(state.getMouseDown()) {
-				state.translateRect(state.getSelectedIndex(), previousPos, newPos, true);
+				state.translateRect(state.getSelectedIndex(), previousPos, newPos);
 			}
-
-			state.propagateForce();
-			state.propagateVelocity();
 
 			lastUpdate = timer.restart().asSeconds();
 			previousPos = newPos;
 		}
+
+		state.propagateForce();
+		state.propagateVelocity();
 
 		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
 	}

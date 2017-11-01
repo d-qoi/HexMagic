@@ -11,7 +11,7 @@ using namespace std; //makes using vectors easy
 struct RectModel {
 	int x;
 	int y;
-	int zOffset;
+	float zOffset;
 	int zLength;
 	int highlighted;
 	int padding;
@@ -62,7 +62,7 @@ public:
 
 		for(int i = 0; i < rects.size(); i++) {
 
-			rects[i].zOffset = rects[i].x + rects[i].y;
+			rects[i].zOffset = (float)(rects[i].x + rects[i].y);
 			int xOffset = rects[i].x*2;
 			int zOffset = rects[i].y*2;
 			int yOffset = rects[i].zOffset;

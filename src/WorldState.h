@@ -42,7 +42,6 @@ private:
 
 	int selectedIndex;
 
-	int forces[WIDTH * WIDTH];
 	double velocity[WIDTH * WIDTH];
 
 public:
@@ -92,7 +91,6 @@ public:
 		mouseDown = false;
 		selectedIndex = 0;
 
-		clearForces();
 		clearVelocities();
 	}
 	
@@ -271,13 +269,6 @@ public:
 	}
 
 	// Physics
-	void clearForces()
-	{
-		for(int i = 0; i < WIDTH * WIDTH; i++) {
-			forces[i] = 0;
-		}
-	}
-
 	void clearVelocities()
 	{
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
@@ -285,7 +276,7 @@ public:
 		}
 	}
 
-	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos, bool applyingForce)
+	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos)
 	{
 		#define XY_SENSITIVITY 0.01f // might be helpful to scale translations in x and y
 
@@ -299,70 +290,65 @@ public:
 		//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
 		int force = diff.y * 100;
 		rectModel->zOffset = rectModel->zOffset + force;
-
-		if(applyingForce) {
-			forces[index - 1] += force;
-		}
 	}
 
 	void propagateForce()
 	{
-		#define K 0.6f;
-		#define damp 0.01f;
+		#define K 1.0f;
+		#define damp 0.1f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
-			if(mouseDown && i == selectedIndex) {
-				// Do not mess with position of object if currently held by mouse
-				continue;
-			}
+//			if(mouseDown && i == selectedIndex) {
+//				// Do not mess with position of object if currently held by mouse
+//				continue;
+//			}
 			int x = i % WIDTH;
 			int y = i / WIDTH;
 
 			RectModel *rectModel = &model.rects[i];
 
-			int currentForce = forces[i];
-			int equilibrium = rectModel->x + rectModel->y;
-			double offset = rectModel->zOffset - equilibrium;
+			float equilibrium = rectModel->x + rectModel->y;
+			float offset = rectModel->zOffset - equilibrium;
 
-			double delta = 0;
+			float newVelocity = velocity[i];
 
 			if(x == 0) {
-//				delta = 
+				newVelocity -= offset * K;
 			} else {
 				// Previous x
 				RectModel prev = model.rects[i-1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				newVelocity -= (offset - prevOffset) * K;
 			}
 
 			if(x == WIDTH-1) {
-
+				newVelocity -= offset * K;
 			} else {
 				// Next x
 				RectModel prev = model.rects[i+1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				newVelocity -= (offset - prevOffset) * K;
 			}
 
 			if(y == 0) {
-
+				newVelocity -= offset * K;
 			} else {
 				// Previous y
 				RectModel prev = model.rects[i-WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				newVelocity -= (offset - prevOffset) * K;
 			}
 
 			if(y == WIDTH-1) {
-
+				newVelocity -= offset * K;
 			} else {
 				// Next y
 				RectModel prev = model.rects[i+WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				newVelocity -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] += delta * damp;
+			velocity[i] = newVelocity * damp;
 		}
 	}
 

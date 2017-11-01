@@ -17,7 +17,7 @@ const int WIDTH = 8;
 struct RectModel {
 	int x;
 	int y;
-	int zOffset;
+	float zOffset;
 	int zLength;
 	int highlighted;
 	int padding;
@@ -50,7 +50,7 @@ RectModel getModel() {
 }
 
 vec3 offsetPos() {
-	return vec3(0, getModel().zOffset, 0) * 0.02;
+	return vec3(0, getModel().zOffset, 0) * 0.5;
 }
 
 void main()
