@@ -198,17 +198,7 @@ public:
 	int lastHighlightedIndex;
 
 	void checkIntersection(WorldState & state) {
-//<<<<<<< HEAD
-//		printf("Mouse Pos: %f %f\n", state.getCursorX(), state.getCursorY());
-//
-//		glm::vec4 cursorPosition = glm::vec4(state.getCursorX(), state.getCursorY(), 0, 0);
-//		cursorPosition = glm::normalize(glm::inverse(state.getModelTranslate()) * glm::inverse(state.getModelRotate()) * glm::inverse(C) * glm::inverse(P) * cursorPosition);
-//		printf("Cursor Pos: %f %f %f\n", cursorPosition.x, cursorPosition.y, cursorPosition.z);
-//=======
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-
-//		printf("Cursor: %f %f\n", state.getCursorX(), RESOLUTION - state.getCursorY());
-
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		unsigned char colorData[4];
@@ -218,16 +208,15 @@ public:
 		int x = colorData[2];
 		int index = x * 255 + y;
 
-		if(index != 0) {
+		if(index != 0 && !state.getMouseDown()) {
 			printf("Selected %d\n", index);
+			state.setSelectedIndex(index);
 			state.getModel().setHighlight(index - 1);
 			if(lastHighlightedIndex != 0 && lastHighlightedIndex != index) {
 				state.getModel().clearHighlight(lastHighlightedIndex - 1);
 			}
 			lastHighlightedIndex = index;
 		}
-
-//		printf("Read %d %d %d %d\n", colorData[0], colorData[1], colorData[2], colorData[3]);
 	}
 
 

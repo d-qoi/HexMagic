@@ -22,7 +22,9 @@ struct RectModel {
 class Model
 {
 public:
-    void init()
+	vector<RectModel> rects;
+
+	void init()
     {
     	objLoader loader;
     	loader.load("resources/cube.obj"); // This is going to assume that everything is between -0.5 and .5, Allowing for offsets, maybe? Later?
@@ -157,7 +159,7 @@ public:
 	vector<GLuint> const getRectCoordinates() const
 	{ return rectCoordinates; }
 
-	vector<RectModel> const getRects() const
+	vector<RectModel> getRects()
 	{ return rects; }
 
 	vector<GLuint> const getModelIds() const
@@ -195,7 +197,7 @@ public:
     
     glm::vec3 getDimension()
     { return dim; }
-    
+
 private:
 	
 	glm::vec3 computeMinBound()
@@ -265,8 +267,6 @@ private:
 	vector<GLuint> elements;
 	vector<GLuint> modelIds;
 	vector<GLuint> rectCoordinates;
-
-	vector<RectModel> rects;
 
 	size_t objectCount;
     

@@ -38,6 +38,10 @@ private:
 	double cursorX;
 	double cursorY;
 
+	bool mouseDown;
+
+	int selectedIndex;
+
 public:
 	WorldState()
 	{
@@ -81,6 +85,9 @@ public:
 		currentTime = 0;
 		cursorX = 0;
 		cursorY = 0;
+
+		mouseDown = false;
+		selectedIndex = 0;
 	}
 	
 	void updateFrameTime(float timeAsSeconds)
@@ -202,17 +209,22 @@ public:
 	double getCursorY()
 	{ return cursorY; }
 
-	void moveCamera(double x, double y, double z) {
+	void moveCamera(double x, double y, double z)
+	{
 		printf("Move Camera\n");
 		this->cameraPos += glm::vec3(x, y, z);
 		this->cameraLook += glm::vec3(x, y, z);
 	}
-	void moveCameraForward(float amount) {
+
+	void moveCameraForward(float amount)
+	{
 		glm::vec3 diff = amount * glm::normalize(this->cameraLook - this->cameraPos);
 		this->cameraPos += diff;
 		this->cameraLook += diff;
 	}
-	void moveCameraLook(float pitch, float yaw) {
+
+	void moveCameraLook(float pitch, float yaw)
+	{
 		glm::mat4 base = glm::mat4(1.0f);
 		glm::vec4 camBase = glm::vec4(cameraPos.x, cameraPos.y, cameraPos.z-camDistance, 1) - glm::vec4(cameraPos, 1);
 		this->camPitch += pitch;
@@ -225,11 +237,46 @@ public:
 
 
 		this->cameraLook = glm::vec3(cameraLook.x, cameraLook.y, cameraLook.z);
+	}
 
+	void setCameraLook(double pitch, double yaw)
+	{
 
 	}
-	void setCameraLook(double pitch, double yaw) {
 
+	void setMouseDown(bool down)
+	{
+		this->mouseDown = down;
+	}
+
+	bool getMouseDown()
+	{
+		return mouseDown;
+	}
+
+	void setSelectedIndex(int index)
+	{
+		this->selectedIndex = index;
+	}
+
+	int getSelectedIndex()
+	{
+		return selectedIndex;
+	}
+
+	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos)
+	{
+		#define XY_SENSITIVITY 0.01f // might be helpful to scale translations in x and y
+
+		if(index == 0) {
+			return;
+		}
+
+		RectModel *rectModel = &model.rects[index - 1];
+
+		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
+//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
+		rectModel->zOffset = rectModel->zOffset + diff.y * 100;
 	}
 };
 

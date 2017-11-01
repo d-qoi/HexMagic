@@ -117,6 +117,34 @@ private:
 				state.moveCameraForward(-0.1);
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::D))
 				state.moveCameraLook(0, -0.01);
+
+			if(event.type == sf::Event::MouseButtonPressed) {
+				previousPos = glm::vec2(event.mouseButton.x, event.mouseButton.y);
+
+				if(event.mouseButton.button == sf::Mouse::Left)
+					state.setMouseDown(true);
+			}
+
+			if(event.type == sf::Event::MouseButtonReleased) {
+				if(event.mouseButton.button == sf::Mouse::Left)
+					state.setMouseDown(false);
+
+				lastUpdate = timer.getElapsedTime().asSeconds();
+			}
+		}
+
+		lastUpdate = timer.getElapsedTime().asSeconds();
+		bool needsUpdate = lastUpdate > TIME_BETWEEN_UPDATES;
+		if (needsUpdate)
+		{
+			glm::ivec2 newPos = glm::ivec2(sf::Mouse::getPosition(*App).x, sf::Mouse::getPosition(*App).y);
+
+			if(state.getMouseDown()) {
+				state.translateRect(state.getSelectedIndex(), previousPos, newPos);
+			}
+
+			lastUpdate = timer.restart().asSeconds();
+			previousPos = newPos;
 		}
 
 		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
