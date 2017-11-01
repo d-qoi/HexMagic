@@ -42,6 +42,9 @@ private:
 
 	int selectedIndex;
 
+	int forces[WIDTH * WIDTH];
+	double velocity[WIDTH * WIDTH];
+
 public:
 	WorldState()
 	{
@@ -88,6 +91,9 @@ public:
 
 		mouseDown = false;
 		selectedIndex = 0;
+
+		clearForces();
+		clearVelocities();
 	}
 	
 	void updateFrameTime(float timeAsSeconds)
@@ -264,7 +270,22 @@ public:
 		return selectedIndex;
 	}
 
-	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos)
+	// Physics
+	void clearForces()
+	{
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			forces[i] = 0;
+		}
+	}
+
+	void clearVelocities()
+	{
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			velocity[i] = 0;
+		}
+	}
+
+	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos, bool applyingForce)
 	{
 		#define XY_SENSITIVITY 0.01f // might be helpful to scale translations in x and y
 
@@ -275,8 +296,82 @@ public:
 		RectModel *rectModel = &model.rects[index - 1];
 
 		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
-//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
-		rectModel->zOffset = rectModel->zOffset + diff.y * 100;
+		//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
+		int force = diff.y * 100;
+		rectModel->zOffset = rectModel->zOffset + force;
+
+		if(applyingForce) {
+			forces[index - 1] += force;
+		}
+	}
+
+	void propagateForce()
+	{
+		#define K 0.6f;
+		#define damp 0.01f;
+
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			if(mouseDown && i == selectedIndex) {
+				// Do not mess with position of object if currently held by mouse
+				continue;
+			}
+			int x = i % WIDTH;
+			int y = i / WIDTH;
+
+			RectModel *rectModel = &model.rects[i];
+
+			int currentForce = forces[i];
+			int equilibrium = rectModel->x + rectModel->y;
+			double offset = rectModel->zOffset - equilibrium;
+
+			double delta = 0;
+
+			if(x == 0) {
+//				delta = 
+			} else {
+				// Previous x
+				RectModel prev = model.rects[i-1];
+				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				delta -= (offset - prevOffset) * K;
+			}
+
+			if(x == WIDTH-1) {
+
+			} else {
+				// Next x
+				RectModel prev = model.rects[i+1];
+				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				delta -= (offset - prevOffset) * K;
+			}
+
+			if(y == 0) {
+
+			} else {
+				// Previous y
+				RectModel prev = model.rects[i-WIDTH];
+				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				delta -= (offset - prevOffset) * K;
+			}
+
+			if(y == WIDTH-1) {
+
+			} else {
+				// Next y
+				RectModel prev = model.rects[i+WIDTH];
+				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				delta -= (offset - prevOffset) * K;
+			}
+
+			velocity[i] += delta * damp;
+		}
+	}
+
+	void propagateVelocity()
+	{
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			RectModel *rectModel = &model.rects[i];
+			rectModel->zOffset += velocity[i];
+		}
 	}
 };
 
