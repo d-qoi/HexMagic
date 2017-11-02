@@ -6,7 +6,7 @@
 #include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
-#define WIDTH 8
+#define WIDTH 16
 
 struct RectModel {
 	int x;

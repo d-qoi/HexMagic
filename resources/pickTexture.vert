@@ -12,7 +12,7 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-const int WIDTH = 8;
+const int WIDTH = 16;
 
 in vec3 pos;
 in vec2 modelId;
