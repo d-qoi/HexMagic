@@ -3,7 +3,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define RESOLUTION 512
-#define TARGET_FPS 30                // controls spin update rate
+#define TARGET_FPS 60                // controls spin update rate
 #define TIME_BETWEEN_UPDATES 0.015   // seconds between motion updates
 #define PRINT_FPS_INTERVAL 10.0f
 
@@ -143,12 +143,11 @@ private:
 				state.translateRect(state.getSelectedIndex(), previousPos, newPos);
 			}
 
+			state.tick(lastUpdate);
+
 			lastUpdate = timer.restart().asSeconds();
 			previousPos = newPos;
 		}
-
-		state.propagateForce();
-		state.propagateVelocity();
 
 		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
 	}

@@ -291,7 +291,7 @@ public:
 		rectModel->zOffset = rectModel->zOffset + diff.y;
 	}
 
-	void propagateForce()
+	void tick(float elapsedTime)
 	{
 		#define K 0.2f;
 		#define damp 0.1f;
@@ -343,12 +343,9 @@ public:
 				delta -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] = delta + velocity[i] * .65;
+			velocity[i] = (delta + velocity[i] * .65) * elapsedTime * 60.0f;
 		}
-	}
 
-	void propagateVelocity()
-	{
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			if(mouseDown && i == selectedIndex - 1) {
 				// Do not mess with position of object if currently held by mouse

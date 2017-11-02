@@ -209,7 +209,7 @@ public:
 		int index = x * 255 + y;
 
 		if(index != 0 && !state.getMouseDown()) {
-			printf("Selected %d\n", index);
+//			printf("Selected %d\n", index);
 			state.setSelectedIndex(index);
 			state.getModel().setHighlight(index - 1);
 			if(lastHighlightedIndex != 0 && lastHighlightedIndex != index) {
