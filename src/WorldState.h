@@ -278,7 +278,7 @@ public:
 
 	void translateRect(int index, glm::ivec2 oldPos, glm::ivec2 newPos)
 	{
-		#define XY_SENSITIVITY 0.01f // might be helpful to scale translations in x and y
+		#define XY_SENSITIVITY 0.05f // might be helpful to scale translations in x and y
 
 		if(index == 0) {
 			return;
@@ -288,20 +288,15 @@ public:
 
 		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
 		//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
-		int force = diff.y * 100;
-		rectModel->zOffset = rectModel->zOffset + force;
+		rectModel->zOffset = rectModel->zOffset + diff.y;
 	}
 
 	void propagateForce()
 	{
-		#define K 1.0f;
+		#define K 0.2f;
 		#define damp 0.1f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
-//			if(mouseDown && i == selectedIndex) {
-//				// Do not mess with position of object if currently held by mouse
-//				continue;
-//			}
 			int x = i % WIDTH;
 			int y = i / WIDTH;
 
@@ -310,51 +305,55 @@ public:
 			float equilibrium = rectModel->x + rectModel->y;
 			float offset = rectModel->zOffset - equilibrium;
 
-			float newVelocity = velocity[i];
+			float delta = 0.0f;
 
 			if(x == 0) {
-				newVelocity -= offset * K;
+				delta -= offset * K;
 			} else {
 				// Previous x
 				RectModel prev = model.rects[i-1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				newVelocity -= (offset - prevOffset) * K;
+				delta -= (offset - prevOffset) * K;
 			}
 
 			if(x == WIDTH-1) {
-				newVelocity -= offset * K;
+				delta -= offset * K;
 			} else {
 				// Next x
 				RectModel prev = model.rects[i+1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				newVelocity -= (offset - prevOffset) * K;
+				delta -= (offset - prevOffset) * K;
 			}
 
 			if(y == 0) {
-				newVelocity -= offset * K;
+				delta -= offset * K;
 			} else {
 				// Previous y
 				RectModel prev = model.rects[i-WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				newVelocity -= (offset - prevOffset) * K;
+				delta -= (offset - prevOffset) * K;
 			}
 
 			if(y == WIDTH-1) {
-				newVelocity -= offset * K;
+				delta -= offset * K;
 			} else {
 				// Next y
 				RectModel prev = model.rects[i+WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				newVelocity -= (offset - prevOffset) * K;
+				delta -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] = newVelocity * damp;
+			velocity[i] = delta + velocity[i] * .65;
 		}
 	}
 
 	void propagateVelocity()
 	{
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			if(mouseDown && i == selectedIndex - 1) {
+				// Do not mess with position of object if currently held by mouse
+				continue;
+			}
 			RectModel *rectModel = &model.rects[i];
 			rectModel->zOffset += velocity[i];
 		}
