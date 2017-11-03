@@ -98,7 +98,10 @@ public:
 
 		glFlush();
 		glFinish();
-		checkIntersection(state);
+
+		if(!state.getMouseDown()) {
+			checkIntersection(state);
+		}
 
 		// Render to display
 		//clear the old frame
@@ -221,6 +224,17 @@ public:
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		unsigned char colorData[4];
+
+		if(state.getCursorX() < 0 || state.getCursorY() < 0) {
+			// Cursor is not on screen
+			if(lastHighlightedIndex != 0) {
+				state.getModel().clearHighlight(lastHighlightedIndex - 1);
+				lastHighlightedIndex = 0;
+			}
+
+			return;
+		}
+
 		glReadPixels(state.getCursorX(), RESOLUTION - state.getCursorY(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, colorData);
 
 		int y = colorData[3];
