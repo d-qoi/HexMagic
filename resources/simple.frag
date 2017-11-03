@@ -25,15 +25,27 @@ const vec3 ka = vec3(0.1, 0.1, 0.1);
 const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
 
+float attenuation(float r, float f, float d) {
+	float denom = d / r + 1.0;
+	float attenuation = 1.0 / (denom*denom);
+	float t = (attenuation - f) / (1.0 - f);
+	return max(t, 0.0);
+}
+
 void main()
 {
 	if(shadingMode == 1) {
 		fragColor = flatColor;
 	} else if(shadingMode == 3) {
 		vec4 p = M * vec4(smoothPos, 1);
-		vec4 light = C*L*lightPos;
+		// Set light position to camera position
+		// used to be C*L*lightPos
+		vec4 light = C*camPos;
 
 		vec4 incident = normalize(light - p);
+
+		float lightDistance = length(incident);
+		float falloff = attenuation(5, 0.20, lightDistance);
 
 		vec4 viewer = normalize(C * camPos);
 		vec4 normal = normalize(vec4(N * smoothNorm, 1));
@@ -47,7 +59,7 @@ void main()
 		float specDot = max(0.0, dot(viewer, normalReflect));
 		vec4 specular = vec4(ks * lightIntensity * pow(specDot, specAlpha), 1);
 
-		fragColor = ambient + diffuse + specular;
+		fragColor = (ambient + diffuse + specular) * falloff;
 	} else {
 		fragColor = smoothColor;
 	}
