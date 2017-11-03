@@ -36,8 +36,6 @@ in vec2 rectCoord;
 
 out vec3 smoothPos;
 out vec3 smoothNorm;
-out vec4 smoothColor;
-flat out vec4 flatColor;
 flat out vec3 flatDiffuseColor;
 
 const vec3 lightIntensity = vec3(1, 1, 1);
@@ -69,30 +67,5 @@ void main()
 	vec4 p = M * vec4(mpos, 1);
 	gl_Position = P*p;
 
-	vec4 light = C*L*lightPos;
-
-	vec4 incident = normalize(light - p);
-
-	vec4 viewer = normalize(C * camPos);
-	vec4 normal = normalize(vec4(N * normalIn, 1));
-
-	float dotProduct = dot(normal, incident);
-	vec4 ambient = vec4(ka * lightIntensity, 1);
-
-	vec4 diffuse = vec4(color * lightIntensity * dotProduct, 1);
-
-	vec4 normalReflect = -normalize(incident - 2 * dotProduct * normal);
-	float specDot = max(0.0, dot(viewer, normalReflect));
-	vec4 specular = vec4(ks * lightIntensity * pow(specDot, specAlpha), 1);
-
-	if(shadingMode == 0) {
-		smoothNorm = normalIn / 2 + 0.5;
-		smoothColor = vec4(smoothNorm, 1);
-	} else if(shadingMode == 1) {
-		flatColor = ambient + diffuse + specular;
-	} else if(shadingMode == 2) {
-		smoothColor = ambient + diffuse + specular;
-	} else {
-		flatDiffuseColor = color;
-	}
+	flatDiffuseColor = color;
 }

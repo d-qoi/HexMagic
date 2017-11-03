@@ -12,8 +12,6 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-flat in vec4 flatColor;
-in vec4 smoothColor;
 in vec3 smoothPos;
 in vec3 smoothNorm;
 flat in vec3 flatDiffuseColor;
@@ -34,33 +32,27 @@ float attenuation(float r, float f, float d) {
 
 void main()
 {
-	if(shadingMode == 1) {
-		fragColor = flatColor;
-	} else if(shadingMode == 3) {
-		vec4 p = M * vec4(smoothPos, 1);
-		// Set light position to camera position
-		// used to be C*L*lightPos
-		vec4 light = C*camPos;
+	vec4 p = M * vec4(smoothPos, 1);
+	// Set light position to camera position
+	// used to be C*L*lightPos
+	vec4 light = C*camPos;
 
-		vec4 incident = normalize(light - p);
+	vec4 incident = normalize(light - p);
 
-		float lightDistance = length(incident);
-		float falloff = attenuation(5, 0.20, lightDistance);
+	float lightDistance = length(incident);
+	float falloff = attenuation(5, 0.20, lightDistance);
 
-		vec4 viewer = normalize(C * camPos);
-		vec4 normal = normalize(vec4(N * smoothNorm, 1));
+	vec4 viewer = normalize(C * camPos);
+	vec4 normal = normalize(vec4(N * smoothNorm, 1));
 
-		float dotProduct = dot(normal, incident);
-		vec4 ambient = vec4(ka * lightIntensity, 1);
+	float dotProduct = dot(normal, incident);
+	vec4 ambient = vec4(ka * lightIntensity, 1);
 
-		vec4 diffuse = vec4(flatDiffuseColor * lightIntensity * dotProduct, 1);
+	vec4 diffuse = vec4(flatDiffuseColor * lightIntensity * dotProduct, 1);
 
-		vec4 normalReflect = -normalize(incident - 2 * dotProduct * normal);
-		float specDot = max(0.0, dot(viewer, normalReflect));
-		vec4 specular = vec4(ks * lightIntensity * pow(specDot, specAlpha), 1);
+	vec4 normalReflect = -normalize(incident - 2 * dotProduct * normal);
+	float specDot = max(0.0, dot(viewer, normalReflect));
+	vec4 specular = vec4(ks * lightIntensity * pow(specDot, specAlpha), 1);
 
-		fragColor = (ambient + diffuse + specular) * falloff;
-	} else {
-		fragColor = smoothColor;
-	}
+	fragColor = (ambient + diffuse + specular) * falloff;
 }
