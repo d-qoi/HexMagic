@@ -128,6 +128,25 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
+		bool found = false;
+		int highlightX = -1;
+		int highlightY = -1;
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			RectModel model = state.getModel().getRects()[i];
+
+			if(model.highlighted) {
+				highlightX = model.x;
+				highlightY = model.y;
+				found = true;
+
+				break;
+			}
+		}
+
+		glUniform1i(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
+		glUniform1i(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
+		glUniform1i(glGetUniformLocation(shaderProg, "renderHighlight"), found);
+
 		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
