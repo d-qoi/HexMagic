@@ -43,7 +43,8 @@ private:
 
 	int selectedIndex;
 
-	double velocity[WIDTH * WIDTH];
+	double velocity[WIDTH * WIDTH] = { 0 };
+	double acceleration[WIDTH * WIDTH] = { 0 };
 
 public:
 	WorldState()
@@ -293,13 +294,20 @@ public:
 		RectModel *rectModel = &model.rects[index - 1];
 
 		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
-		//		printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
+		//printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
 		rectModel->zOffset = rectModel->zOffset + diff.y;
 	}
 
 	void tick(float elapsedTime)
 	{
-		#define K 0.45f;
+		// height -> accel constant for adj blocks
+		float K = 0.005f;
+		// height -> accel constant 
+		float B = 0.01f;
+		// velocity dampener
+		float P = 0.1f;
+		// time fiddling
+		float t = elapsedTime * 60.0f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -310,46 +318,37 @@ public:
 			float equilibrium = rectModel->x + rectModel->y;
 			float offset = rectModel->zOffset - equilibrium;
 
-			float delta = 0.0f;
+			float sum = 0.0f;
 
-			if(x == 0) {
-				delta -= offset * K;
-			} else {
+			// update from local nearby
+			if(x != 0) {
 				// Previous x
 				RectModel prev = model.rects[i-1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				sum -= (offset - prevOffset) * K;
 			}
-
-			if(x == WIDTH-1) {
-				delta -= offset * K;
-			} else {
+			if(x != WIDTH-1) {
 				// Next x
 				RectModel prev = model.rects[i+1];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				sum -= (offset - prevOffset) * K;
 			}
 
-			if(y == 0) {
-				delta -= offset * K;
-			} else {
+			if(y != 0) {
 				// Previous y
 				RectModel prev = model.rects[i-WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				sum -= (offset - prevOffset) * K;
 			}
 
-			if(y == WIDTH-1) {
-				delta -= offset * K;
-			} else {
+			if(y != WIDTH-1) {
 				// Next y
 				RectModel prev = model.rects[i+WIDTH];
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
-				delta -= (offset - prevOffset) * K;
+				sum -= (offset - prevOffset) * K;
 			}
-
-			velocity[i] = (delta + velocity[i] * 0.95) * elapsedTime * 30.0f;
-
+			acceleration[i] = acceleration[i] + sum - offset * B;
+			velocity[i] = (velocity[i] + acceleration[i] * t) * P;
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
@@ -358,7 +357,7 @@ public:
 				continue;
 			}
 			RectModel *rectModel = &model.rects[i];
-			rectModel->zOffset += velocity[i];
+			rectModel->zOffset += velocity[i] * t + 0.5f * acceleration[i] * t * t;
 		}
 	}
 };
