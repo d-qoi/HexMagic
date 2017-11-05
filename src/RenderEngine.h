@@ -69,6 +69,11 @@ public:
 		glm::vec4 camPos = state.getCameraPos();
 		glm::mat4 L = state.getLightRotate();
 
+		if  (state.getPerspective())
+			this->P = &Perspective;
+		else
+			this->P = &OrthoPerspective;
+
 		// Render to framebuffer for picking
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 		glClearColor(0, 0, 0, 0);

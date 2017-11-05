@@ -103,6 +103,8 @@ private:
                 state.toggleModelRotate();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 't'))
                 state.toggleLightRotate();
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'p'))
+				state.togglePerspective();
 
 
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))

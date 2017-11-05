@@ -14,6 +14,7 @@ private:
 	bool running;
 	Model model;
     int shadingMode;
+    bool perspective;
 	
     glm::vec3 cameraPos;
     glm::vec3 cameraLook;
@@ -90,6 +91,8 @@ public:
 
 		mouseDown = false;
 		selectedIndex = 0;
+
+		perspective = true;
 
 		clearVelocities();
 	}
@@ -175,6 +178,12 @@ public:
     int getShadingMode() const
     { return this->shadingMode; }
     
+    void togglePerspective()
+    { this->perspective = !perspective; }
+
+    bool getPerspective() const
+    { return this->perspective; }
+
     glm::vec4 getCameraPos() const
     { return glm::vec4(this->cameraPos, 1); }
 	
@@ -339,7 +348,7 @@ public:
 				delta -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] = (delta + velocity[i] * 0.95) * elapsedTime * 60.0f;
+			velocity[i] = (delta + velocity[i] * 0.95) * elapsedTime * 30.0f;
 
 		}
 
