@@ -200,11 +200,11 @@ public:
 
 		if(x < 0) {
 			x = -1;
-		} else if(x > windowSize.x) {
+		} else if(x >= windowSize.x) {
 			x = -1;
 		}
 
-		if(y < 0) {
+		if(y <= 0) {
 			y = -1;
 		} else if(y > windowSize.y) {
 			y = -1;
