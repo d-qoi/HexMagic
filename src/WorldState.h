@@ -315,7 +315,7 @@ public:
 		// time fiddling
 		float t = elapsedTime * 30.0f;
 		// acceleration dampener
-		float D = 0.95f;
+		float D = 0.955f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -365,7 +365,12 @@ public:
 				continue;
 			}
 			RectModel *rectModel = &model.rects[i];
-			rectModel->zOffset += velocity[i] * t + 0.5 * acceleration[i] * t * t;
+			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
+			if (change > -0.001f && change < 0.001f) {
+				rectModel->zOffset = rectModel->x + rectModel->y;
+			} else {
+				rectModel->zOffset += velocity[i] * t + 0.5 * acceleration[i] * t * t;
+			}
 		}
 	}
 };
