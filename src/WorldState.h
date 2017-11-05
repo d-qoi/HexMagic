@@ -290,8 +290,7 @@ public:
 
 	void tick(float elapsedTime)
 	{
-		#define K 0.1f;
-		#define damp 0.1f;
+		#define K 0.45f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -340,7 +339,8 @@ public:
 				delta -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] = (delta + velocity[i]*0.75) * elapsedTime * 60.0f;
+			velocity[i] = (delta + velocity[i] * 0.95) * elapsedTime * 60.0f;
+
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
