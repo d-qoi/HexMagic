@@ -80,7 +80,9 @@ void main()
 	//hack to preserve inputs/output
 	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offset;
 	
-	vec3 color = vec3(sin(2/offsetFromOrig), 0, cos(2/offsetFromOrig));
+	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3), 
+					  cos(offsetFromOrig*0.8),
+					  cos(offsetFromOrig*0.3 + 2*3.13158265/3));
 
 	if(getModel().highlighted != 0) {
 		color = vec3(1,0,0);

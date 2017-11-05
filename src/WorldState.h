@@ -304,6 +304,7 @@ public:
 		rectModel->zOffset = rectModel->zOffset + diff.y;
 	}
 
+
 	void tick(float elapsedTime)
 	{
 		// height -> accel constant for adj blocks
@@ -355,7 +356,9 @@ public:
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
 				sum -= (offset - prevOffset) * K;
 			}
+
 			acceleration[i] = acceleration[i] * D + sum - offset * B;
+
 			velocity[i] = (velocity[i] + acceleration[i] * t) * P;
 		}
 
