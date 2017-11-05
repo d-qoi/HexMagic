@@ -96,7 +96,7 @@ private:
 				state.setRunning(false);
 			
             if((event.type == sf::Event::TextEntered) && (event.text.unicode == ' '))
-                state.nextShadingMode();
+                state.clearVelocities();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == '='))
 				saveBuffer(*App);
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'r'))
