@@ -298,16 +298,19 @@ public:
 		rectModel->zOffset = rectModel->zOffset + diff.y;
 	}
 
+
 	void tick(float elapsedTime)
 	{
 		// height -> accel constant for adj blocks
-		float K = 0.01f;
+		float K = 0.3f;
 		// height -> accel constant 
-		float B = 0.005f;
+		float B = 0.07f;
 		// velocity dampener
-		float P = 0.0001f;
+		float P = 0.1f;
 		// time fiddling
-		float t = elapsedTime * 60.0f;
+		float t = elapsedTime * 30.0f;
+		//Old Accel Damping
+		float D = 0.95f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -347,7 +350,7 @@ public:
 				double prevOffset = prev.zOffset - (prev.x + prev.y);
 				sum -= (offset - prevOffset) * K;
 			}
-			acceleration[i] = acceleration[i] + sum - offset * B;
+			acceleration[i] = acceleration[i]*D + sum - offset * B;
 			velocity[i] = (velocity[i] + acceleration[i] * t) * P;
 		}
 
