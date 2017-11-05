@@ -39,12 +39,12 @@ float attenuation2(float distance) {
 
 void main()
 {
-	vec4 p = M * vec4(smoothPos, 1);
+	vec4 p = M * vec4(smoothPos, 1); // point we are manipulating
 	// Set light position to camera position
 	// used to be C*L*lightPos
-	vec4 light = C*camPos;
+	vec4 light = C*camPos; // point for light
 
-	vec4 incident = normalize(light - p);
+	vec4 incident = normalize(light - p); // incedent 
 
 	float lightDistance = length(incident);
 	float falloff = attenuation(5, 0.20, lightDistance);

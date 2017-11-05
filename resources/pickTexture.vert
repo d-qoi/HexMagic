@@ -40,7 +40,10 @@ RectModel getModel() {
 }
 
 vec3 offsetPos() {
-	return vec3(0, getModel().zOffset, 0);
+	RectModel model = getModel();
+	if (pos.y < 0)
+		return vec3(0, model.zOffset - float(model.zLength), 0);
+	return vec3(0, model.zOffset, 0);
 }
 
 void main()
