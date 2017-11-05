@@ -15,7 +15,7 @@ uniform int shadingMode;
 uniform int highlightX;
 uniform int highlightY;
 
-const int WIDTH = 16;
+const int WIDTH = 40;
 
 struct RectModel {
 	int x;

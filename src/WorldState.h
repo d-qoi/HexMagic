@@ -66,8 +66,8 @@ public:
 		camDistance = std::max(dim[0], dim[1]);
 		camPitch = 0;
 		camYaw = 0;
-		cameraPos = glm::vec3(0,10,camDistance);
-        cameraLook = glm::vec3(0,0,0);
+		cameraPos = glm::vec3(0,WIDTH,camDistance);
+        cameraLook = glm::vec3(0,WIDTH/2,0);
         cameraUp = glm::vec3(0,1,0);
         
 		lightPos = glm::vec4((max-center)*1.3f, 1);
@@ -162,7 +162,7 @@ public:
     { return this->lightIntensity; }
     
     glm::mat4 getCameraMatrix() const
-    { return glm::lookAt(cameraPos, cameraLook, cameraUp);; }
+    { return glm::lookAt(cameraPos, cameraLook, cameraUp); }
     
     void nextShadingMode()
     {

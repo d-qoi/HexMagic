@@ -15,7 +15,9 @@ public:
 		initialized = false;
 		
 		//camera
-        this->P = glm::perspective(1.0f, 1.0f, 0.1f, 100.0f);
+        this->Perspective = glm::perspective(1.0f, 1.0f, 0.1f, 100.0f);
+        this->OrthoPerspective = glm::ortho((float)-WIDTH, (float)WIDTH, (float)0, (float)WIDTH, 0.1f, 1000.0f);
+        this->P = &OrthoPerspective;
         this->C = glm::mat4(1);
 		this->M = glm::mat4(1);
 	}
@@ -49,7 +51,7 @@ public:
         
 		glm::vec3 dim = state.getModel().getDimension();
 		float maxDim = std::max(dim[0], std::max(dim[1], dim[2]));
-		this->P = glm::perspective(1.0f, 1.0f, maxDim*0.01f, maxDim*10.0f);
+		this->Perspective = glm::perspective(1.0f, 1.0f, maxDim*0.01f, maxDim*10.0f);
         C = state.getCameraMatrix();
 
 		setupShader();
@@ -74,7 +76,7 @@ public:
 
 		glUseProgram(pickTextureProg);
 
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &P[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "C"), 1, GL_FALSE, &C[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mR"), 1, GL_FALSE, &mR[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mT"), 1, GL_FALSE, &mT[0][0]);
@@ -120,7 +122,7 @@ public:
 		//use shader
 		glUseProgram(shaderProg);
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &P[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "C"), 1, GL_FALSE, &C[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "mR"), 1, GL_FALSE, &mR[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "mT"), 1, GL_FALSE, &mT[0][0]);
@@ -163,7 +165,7 @@ public:
 
 		glUseProgram(lightProg);
 
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "P"), 1, GL_FALSE, &P[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(lightProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "C"), 1, GL_FALSE, &C[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "mR"), 1, GL_FALSE, &mR[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(lightProg, "mT"), 1, GL_FALSE, &mT[0][0]);
@@ -271,10 +273,11 @@ private:
 	GLuint rectBuffer;
 	GLuint pickRectBuffer;
 	
-	glm::mat4 P;
+	glm::mat4 Perspective;
+	glm::mat4 OrthoPerspective;
+	glm::mat4 *P;
 	glm::mat4 C;
 	glm::mat4 M;
-
 	
 	float initLoader()
 	{

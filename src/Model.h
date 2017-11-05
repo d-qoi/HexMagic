@@ -6,7 +6,7 @@
 #include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
-#define WIDTH 16
+#define WIDTH 40
 
 struct RectModel {
 	int x;
@@ -39,7 +39,7 @@ public:
 				rectModel.x = j;
 				rectModel.y = i;
 				rectModel.zOffset = 0;
-				rectModel.zLength = 1;
+				rectModel.zLength = WIDTH + i + j;
 				rectModel.highlighted = 0;
 				rectModel.padding = 0;
 				rectModel.padding2 = 0;
@@ -87,9 +87,9 @@ public:
 //				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
 //				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
 //				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
-				colors.push_back(i/64.0);
-				colors.push_back(i/64.0);
-				colors.push_back(i/64.0);
+				colors.push_back(1/64.0);
+				colors.push_back(1/64.0);
+				colors.push_back(1/64.0);
 			}
 			vector<glm::vec3> normalList;
 			for (int j = 0; j < loader.vertexCount; j++) {
