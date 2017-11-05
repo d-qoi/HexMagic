@@ -56,21 +56,31 @@ RectModel getModel() {
 }
 
 vec3 offsetPosFor(RectModel model) {
-	return vec3(0, model.zOffset, 0) * 0.5;
+	return vec3(0, model.zOffset, 0);
 }
 
 vec3 offsetPos() {
 	return offsetPosFor(getModel());
 }
 
+float getOffsetFromOrig() {
+	RectModel model = getModel();
+	return model.zOffset - float(model.x + model.y);
+}
+
 void main()
 {
+	RectModel model = getModel();
+	vec3 offset = vec3(0, model.zOffset, 0);
+	float offsetFromOrig = offset.y - float(model.x + model.y);
+	if (pos.y < 0) {
+		offset.y -= float(model.zLength);
+	}
+	
 	//hack to preserve inputs/output
-	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offsetPos();
-	smoothPos = pos;
-	smoothNorm = normalIn;
-
-	vec3 color = colorIn;
+	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offset;
+	
+	vec3 color = vec3(sin(2/offsetFromOrig), 0, cos(2/offsetFromOrig));
 
 	if(getModel().highlighted != 0) {
 		color = vec3(1,0,0);
@@ -85,5 +95,7 @@ void main()
 	vec4 p = M * vec4(mpos, 1);
 	gl_Position = P*p;
 
+	smoothPos = pos;
+	smoothNorm = normalIn;
 	flatDiffuseColor = color;
 }

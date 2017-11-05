@@ -40,7 +40,7 @@ RectModel getModel() {
 }
 
 vec3 offsetPos() {
-	return vec3(0, getModel().zOffset, 0) * 0.5;
+	return vec3(0, getModel().zOffset, 0);
 }
 
 void main()

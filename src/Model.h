@@ -39,7 +39,7 @@ public:
 				rectModel.x = j;
 				rectModel.y = i;
 				rectModel.zOffset = 0;
-				rectModel.zLength = 80;
+				rectModel.zLength = 1;
 				rectModel.highlighted = 0;
 				rectModel.padding = 0;
 				rectModel.padding2 = 0;
@@ -65,7 +65,7 @@ public:
 			rects[i].zOffset = (float)(rects[i].x + rects[i].y);
 			int xOffset = rects[i].x*2;
 			int zOffset = rects[i].y*2;
-			int yOffset = rects[i].zOffset;
+			int yOffset = 0;//rects[i].zOffset;
 
 			int positionOffset = positions.size();
 			for (int j = 0; j < loader.vertexCount; j++) {

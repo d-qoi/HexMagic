@@ -66,7 +66,7 @@ public:
 		camDistance = std::max(dim[0], dim[1]);
 		camPitch = 0;
 		camYaw = 0;
-		cameraPos = glm::vec3(0,1,camDistance);
+		cameraPos = glm::vec3(0,10,camDistance);
         cameraLook = glm::vec3(0,0,0);
         cameraUp = glm::vec3(0,1,0);
         
@@ -340,7 +340,7 @@ public:
 				delta -= (offset - prevOffset) * K;
 			}
 
-			velocity[i] = (delta + velocity[i] * .75) * elapsedTime * 60.0f;
+			velocity[i] = (delta + velocity[i]*0.75) * elapsedTime * 60.0f;
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
