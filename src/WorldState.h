@@ -301,11 +301,11 @@ public:
 	void tick(float elapsedTime)
 	{
 		// height -> accel constant for adj blocks
-		float K = 0.005f;
+		float K = 0.01f;
 		// height -> accel constant 
-		float B = 0.01f;
+		float B = 0.005f;
 		// velocity dampener
-		float P = 0.1f;
+		float P = 0.0001f;
 		// time fiddling
 		float t = elapsedTime * 60.0f;
 
