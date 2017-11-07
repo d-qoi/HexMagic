@@ -1,16 +1,7 @@
 #version 330
 
 uniform mat4 P;  //projection matrix
-uniform mat4 C;  //camera matrix
-uniform mat4 mT; //model transform
-uniform mat4 mR; //model rotation
 uniform mat4 M;  //modelview matrix: M = C * mR * mT
-uniform mat3 N;  //inverse transpose of upperleft 3x3 of M
-uniform mat4 L;  //light rotation matrix
-
-uniform vec4 lightPos;
-uniform vec4 camPos;
-uniform int shadingMode;
 
 in float xCoord;
 in float yCoord;
@@ -22,6 +13,7 @@ in vec3 pos;
 flat out vec4 flatColor;
 
 vec3 offsetPos() {
+	// NOTE: If you modify this method, also modify the one in simple.vert
 	vec3 modifier = vec3(0, 0, 0);
 
 	if(pos.y < 0) {

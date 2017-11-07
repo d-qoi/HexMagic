@@ -80,15 +80,7 @@ public:
 		glUseProgram(pickerProg);
 
 		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "C"), 1, GL_FALSE, &C[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "mR"), 1, GL_FALSE, &mR[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "mT"), 1, GL_FALSE, &mT[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "M"), 1, GL_FALSE, &M[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(pickerProg, "N"), 1, GL_FALSE, &N[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "L"), 1, GL_FALSE, &L[0][0]);
-		glUniform4fv(glGetUniformLocation(pickerProg, "lightPos"), 1, &lightPos[0]);
-		glUniform4fv(glGetUniformLocation(pickerProg, "camPos"), 1, &camPos[0]);
-		glUniform1i(glGetUniformLocation(pickerProg, "shadingMode"), state.getShadingMode());
 
 		glBindBuffer(GL_ARRAY_BUFFER, zOffsetPickerBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZOffsetsBytes(), &state.getModel().getZOffsets()[0]);
@@ -105,6 +97,7 @@ public:
 		glUseProgram(0);
 		checkGLError("texture model");
 
+		// Flush draw to ensure the pixel data is correct for intersection check
 		glFlush();
 		glFinish();
 
@@ -118,29 +111,17 @@ public:
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //hacky light source size change
-        GLfloat maxDis = state.getModel().getDimension()[2] * 3;
-        GLfloat distScale = 1.0f / (glm::length(L*lightPos - camPos) / maxDis);
-        glPointSize(glm::mix(1.0f, 10.0f, distScale));
-
-        //printf("cam %f %f %f\n", camPos[0], camPos[1], camPos[2]);
-        //printf("light %f %f %f\n", lightPos[0], lightPos[1], lightPos[2]);
-
 		//use shader
 		glUseProgram(shaderProg);
 
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "C"), 1, GL_FALSE, &C[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "mR"), 1, GL_FALSE, &mR[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "mT"), 1, GL_FALSE, &mT[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "M"), 1, GL_FALSE, &M[0][0]);
         glUniformMatrix3fv(glGetUniformLocation(shaderProg, "N"), 1, GL_FALSE, &N[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(shaderProg, "L"), 1, GL_FALSE, &L[0][0]);
         glUniform4fv(glGetUniformLocation(shaderProg, "lightPos"), 1, &lightPos[0]);
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
-        glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
-		bool found = false;
 		float highlightX = -1;
 		float highlightY = -1;
 		if(state.getSelectedIndex() > 0) {
@@ -150,7 +131,6 @@ public:
 		
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
-		glUniform1i(glGetUniformLocation(shaderProg, "renderHighlight"), found);
 
 		glBindBuffer(GL_ARRAY_BUFFER, zOffsetBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZOffsetsBytes(), &state.getModel().getZOffsets()[0]);
@@ -160,37 +140,12 @@ public:
 		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZLengthsBytes(), &state.getModel().getZLengths()[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-//		int data;
-//		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
-//
-//		printf("%d\n", data);
-
 		//draw
 		glBindVertexArray(vertexArray);
-//		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
 		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, WIDTH*WIDTH);
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
-
-		glUseProgram(lightProg);
-
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "C"), 1, GL_FALSE, &C[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "mR"), 1, GL_FALSE, &mR[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "mT"), 1, GL_FALSE, &mT[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(lightProg, "M"), 1, GL_FALSE, &M[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(lightProg, "N"), 1, GL_FALSE, &N[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(lightProg, "L"), 1, GL_FALSE, &L[0][0]);
-        glUniform4fv(glGetUniformLocation(lightProg, "lightPos"), 1, &lightPos[0]);
-        glUniform4fv(glGetUniformLocation(lightProg, "camPos"), 1, &camPos[0]);
-        glUniform1i(glGetUniformLocation(lightProg, "shadingMode"), state.getShadingMode());
-
-        glBindVertexArray(lightArray);
-        glDrawArrays(GL_POINTS, 1, GL_UNSIGNED_INT);
-        glBindVertexArray(0);
-        glUseProgram(0);
-        checkGLError("light");
 	}
 
 	void buildRenderBuffers(size_t xSize, size_t ySize)
@@ -264,7 +219,6 @@ private:
 	bool initialized;
 	GLuint pickerProg;
 	GLuint shaderProg;
-    GLuint lightProg;
 
 	GLuint frameBuffer;
 	GLuint renderBuffer;
@@ -277,7 +231,6 @@ private:
 	GLuint zLengthPickerBuffer;
 
 	GLuint vertexArray;
-    GLuint lightArray;
 
 	GLuint pickVertexArray;
 	
@@ -329,10 +282,6 @@ private:
 		char const * fragPath = "resources/simple.frag";
 		shaderProg = ShaderManager::shaderFromFile(&vertPath, &fragPath, 1, 1);
         
-        char const * lightVPath = "resources/lightPos.vert";
-		char const * lightFPath = "resources/lightPos.frag";
-        lightProg = ShaderManager::shaderFromFile(&lightVPath, &lightFPath, 1, 1);
-
 		checkGLError("shader");
 	}
 
@@ -344,7 +293,6 @@ private:
 		GLuint positionBuffer;
 		GLuint normalBuffer;
 		GLuint elementBuffer;
-		GLuint lightBuffer;
 
 		GLint normalSlot;
         GLint positionSlot;
@@ -461,13 +409,6 @@ private:
 		//leave the element buffer active
         checkGLError("model setup");
 
-		//hacky way to draw the light
-        glGenVertexArrays(1, &lightArray);
-        glBindVertexArray(lightArray);
-		glGenBuffers(1, &lightBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, lightBuffer);
-		float lightPos[] = {1,1,1};
-		glBufferData(GL_ARRAY_BUFFER, 3*sizeof(float), &lightPos, GL_STATIC_DRAW);
 		glBindVertexArray(0);
 
 		// Setup picking buffers

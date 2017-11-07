@@ -1,18 +1,13 @@
-#version 410
+#version 330
 
 uniform mat4 P;  //projection matrix
 uniform mat4 C;  //camera matrix
-uniform mat4 mT; //model transform
-uniform mat4 mR; //model rotation
 uniform mat4 M;  //modelview matrix: M = C * mR * mT
 uniform mat3 N;  //inverse transpose of upperleft 3x3 of M
 uniform mat4 L;  //light rotation matrix
 
 uniform vec4 lightPos;
 uniform vec4 camPos;
-uniform int shadingMode;
-
-uniform int renderHighlight;
 
 flat in vec3 highlightPos;
 in vec3 smoothPos;
@@ -61,26 +56,5 @@ void main()
 	float specDot = max(0.0, dot(viewer, normalReflect));
 	vec4 specular = vec4(ks * lightIntensity * pow(specDot, specAlpha), 1);
 
-	vec4 highlightFinal = vec4(0, 0, 0, 0);
-
-	if(renderHighlight != 0) {
-		vec3 highlightIntensity = vec3(1, 0, 0);
-		vec4 highlight = C*vec4(highlightPos, 1);
-		vec4 highlightIncident = normalize(highlight - p);
-		float highlightDistance = length(highlightIncident);
-		float highlightFalloff = attenuation2(highlightDistance);
-
-		float highlightDotProduct = dot(normal, highlightIncident);
-	//	vec4 highlightAmbient = vec4(ka * vec3(1, 0.1, 0.1), 1);
-
-		vec4 highlightDiffuse = vec4(flatDiffuseColor * highlightIntensity * highlightDotProduct, 1);
-
-		vec4 highlightNormalReflect = -normalize(highlightIncident - 2 * highlightDotProduct * normal);
-		float highlightSpecDot = max(0.0, dot(viewer, highlightNormalReflect));
-		vec4 highlightSpecular = vec4(ks * highlightIntensity * pow(highlightSpecDot, specAlpha), 1);
-
-		highlightFinal = clamp((highlightDiffuse + highlightSpecular) * highlightFalloff, 0, 1.0);
-	}
-
-	fragColor = (ambient + diffuse + specular) * falloff + highlightFinal;
+	fragColor = (ambient + diffuse + specular) * falloff;
 }
