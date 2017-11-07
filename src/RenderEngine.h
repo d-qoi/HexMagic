@@ -90,6 +90,14 @@ public:
 		glUniform4fv(glGetUniformLocation(pickerProg, "camPos"), 1, &camPos[0]);
 		glUniform1i(glGetUniformLocation(pickerProg, "shadingMode"), state.getShadingMode());
 
+		glBindBuffer(GL_ARRAY_BUFFER, zOffsetPickerBuffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZOffsetsBytes(), &state.getModel().getZOffsets()[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, zLengthPickerBuffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZLengthsBytes(), &state.getModel().getZLengths()[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 		// Draw
 		glBindVertexArray(pickVertexArray);
 		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, WIDTH*WIDTH);
@@ -135,30 +143,22 @@ public:
 		bool found = false;
 		float highlightX = -1;
 		float highlightY = -1;
-		// TODO: Fix
 		if(state.getSelectedIndex() > 0) {
 			highlightX = (state.getSelectedIndex() - 1) % WIDTH;
 			highlightY = (state.getSelectedIndex() - 1) / WIDTH;
 		}
-//		for(int i = 0; i < WIDTH * WIDTH; i++) {
-//			RectModel model = state.getModel().getRects()[i];
-//
-//			if(model.highlighted) {
-//				highlightX = model.x;
-//				highlightY = model.y;
-//				found = true;
-//
-//				break;
-//			}
-//		}
-
+		
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
 		glUniform1i(glGetUniformLocation(shaderProg, "renderHighlight"), found);
 
-//		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
-//		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
-//		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, zOffsetBuffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZOffsetsBytes(), &state.getModel().getZOffsets()[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, zLengthBuffer);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZLengthsBytes(), &state.getModel().getZLengths()[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 //		int data;
 //		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
@@ -252,7 +252,7 @@ public:
 		// Add 1 to index, as no selection is index 0
 		int index = x + y * WIDTH + 1;
 
-		printf("%f %f\n", x, y);
+//		printf("%f %f\n", x, y);
 
 		if(index != 0 && !state.getMouseDown()) {
 			state.setSelectedIndex(index);
@@ -269,6 +269,12 @@ private:
 	GLuint frameBuffer;
 	GLuint renderBuffer;
 	GLuint idRenderBuffer;
+
+	GLuint zOffsetBuffer;
+	GLuint zLengthBuffer;
+
+	GLuint zOffsetPickerBuffer;
+	GLuint zLengthPickerBuffer;
 
 	GLuint vertexArray;
     GLuint lightArray;
@@ -347,9 +353,8 @@ private:
 		GLint xRectCoordSlot;
 		GLuint yRectCoordBuffer;
 		GLint yRectCoordSlot;
-		GLuint zOffsetBuffer;
+
 		GLint zOffsetSlot;
-		GLuint zLengthBuffer;
 		GLint zLengthSlot;
 
 		// Picker
@@ -362,9 +367,8 @@ private:
 		GLint xRectCoordPickerSlot;
 		GLuint yRectCoordPickerBuffer;
 		GLint yRectCoordPickerSlot;
-		GLuint zOffsetPickerBuffer;
+
 		GLint zOffsetPickerSlot;
-		GLuint zLengthPickerBuffer;
 		GLint zLengthPickerSlot;
 		
 		bool loaded = model.getPosition().size() > 0;

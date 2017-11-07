@@ -300,7 +300,7 @@ public:
 		}
 
 		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
-		//printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
+//		printf("Translating %f by %f\n", model.getZOffset(index - 1) , diff.y);
 		model.setZOffset(index - 1, model.getZOffset(index - 1) + diff.y);
 	}
 
