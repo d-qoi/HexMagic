@@ -282,13 +282,11 @@ public:
 			velocity[i] = 0;
 			acceleration[i] = 0;
 
-			RectModel *rectModel = &model.rects[i];
-
 			int x = i % WIDTH;
 			int y = i / 255;
 
 			float equilibrium = x + y;
-			rectModel->zOffset = equilibrium;
+			model.setZOffset(i, equilibrium);
 		}
 	}
 
@@ -300,11 +298,9 @@ public:
 			return;
 		}
 
-		RectModel *rectModel = &model.rects[index - 1];
-
 		glm::vec2 diff = glm::vec2(newPos.x - oldPos.x, oldPos.y - newPos.y) * glm::vec2(XY_SENSITIVITY, XY_SENSITIVITY);
 		//printf("Translating %d by %d\n", rectModel->zOffset, (int)(diff.y * 100));
-		rectModel->zOffset = rectModel->zOffset + diff.y;
+		model.setZOffset(index - 1, model.getZOffset(index - 1) + diff.y);
 	}
 
 
@@ -325,38 +321,32 @@ public:
 			int x = i % WIDTH;
 			int y = i / WIDTH;
 
-			RectModel *rectModel = &model.rects[i];
-
 			float equilibrium = x + y;
-			float offset = rectModel->zOffset - equilibrium;
+			float offset = model.getZOffset(i) - equilibrium;
 
 			float sum = 0.0f;
 
 			// update from local nearby
 			if(x != 0) {
 				// Previous x
-				RectModel prev = model.rects[i-1];
-				double prevOffset = prev.zOffset - (x - 1 + y);
+				double prevOffset = model.getZOffset(i - 1) - (x - 1 + y);
 				sum -= (offset - prevOffset) * K;
 			}
 			if(x != WIDTH-1) {
 				// Next x
-				RectModel prev = model.rects[i+1];
-				double prevOffset = prev.zOffset - (x + 1 + y);
+				double prevOffset = model.getZOffset(i + 1) - (x + 1 + y);
 				sum -= (offset - prevOffset) * K;
 			}
 
 			if(y != 0) {
 				// Previous y
-				RectModel prev = model.rects[i-WIDTH];
-				double prevOffset = prev.zOffset - (y - 1 + x);
+				double prevOffset = model.getZOffset(i - WIDTH) - (y - 1 + x);
 				sum -= (offset - prevOffset) * K;
 			}
 
 			if(y != WIDTH-1) {
 				// Next y
-				RectModel prev = model.rects[i+WIDTH];
-				double prevOffset = prev.zOffset - (y + 1 + x);
+				double prevOffset = model.getZOffset(i + WIDTH) - (y + 1 + x);
 				sum -= (offset - prevOffset) * K;
 			}
 
@@ -373,12 +363,11 @@ public:
 				// Do not mess with position of object if currently held by mouse
 				continue;
 			}
-			RectModel *rectModel = &model.rects[i];
 			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
 			if (change > -0.001f && change < 0.001f) {
-				rectModel->zOffset = x + y;
+				model.setZOffset(i, x + y);
 			} else {
-				rectModel->zOffset += velocity[i] * t + 0.5 * acceleration[i] * t * t;
+				model.setZOffset(i, model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t);
 			}
 		}
 	}

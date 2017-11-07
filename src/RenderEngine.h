@@ -360,9 +360,6 @@ private:
 		GLint positionTextureSlot;
 		GLint modelIdSlot;
 
-		GLuint rectCoordBuffer;
-		GLint rectCoordSlot;
-
 		GLuint xRectCoordBuffer;
 		GLint xRectCoordSlot;
 
@@ -410,19 +407,6 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("n setup");
 
-		// Rect coords
-		glGenBuffers(1, &rectCoordBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, rectCoordBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getRectCoordinatesBytes(), &model.getRectCoordinates()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		rectCoordSlot =    glGetAttribLocation(shaderProg, "rectCoord");
-		glEnableVertexAttribArray(rectCoordSlot);
-		glVertexAttribPointer(rectCoordSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("rect coord setup");
-
 		glGenBuffers(1, &xRectCoordBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, xRectCoordBuffer);
 		if (loaded)
@@ -456,15 +440,6 @@ private:
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
 		//leave the element buffer active
         checkGLError("model setup");
-
-		GLuint uniformBlockIndexRects = glGetUniformBlockIndex(shaderProg, "RectBlock");
-		glUniformBlockBinding(shaderProg, uniformBlockIndexRects, 0);
-
-		glGenBuffers(1, &rectBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(RectModel)*WIDTH*WIDTH, NULL, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, uniformBlockIndexRects, rectBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		//hacky way to draw the light
         glGenVertexArrays(1, &lightArray);
@@ -504,19 +479,6 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("model id setup");
 
-		// Rect coords
-		glGenBuffers(1, &rectCoordBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, rectCoordBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getRectCoordinatesBytes(), &model.getRectCoordinates()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		rectCoordSlot =    glGetAttribLocation(pickTextureProg, "rectCoord");
-		glEnableVertexAttribArray(rectCoordSlot);
-		glVertexAttribPointer(rectCoordSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("rect coord setup");
-
 		glGenBuffers(1, &elementBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 		if (loaded)
@@ -525,15 +487,6 @@ private:
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
 		//leave the element buffer active
 		checkGLError("model setup");
-
-		GLuint pickBlockIndexRects = glGetUniformBlockIndex(pickTextureProg, "RectBlock");
-		glUniformBlockBinding(pickTextureProg, pickBlockIndexRects, 0);
-
-		glGenBuffers(1, &pickRectBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(RectModel)*WIDTH*WIDTH, NULL, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, pickBlockIndexRects, pickRectBuffer);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		glBindVertexArray(0);
 		checkGLError("setup");

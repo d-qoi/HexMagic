@@ -8,11 +8,6 @@ using namespace std; //makes using vectors easy
 
 #define WIDTH 40
 
-struct RectModel {
-//	int zLength;
-	float zOffset;
-};
-
 class Model
 {
 public:
@@ -107,6 +102,46 @@ public:
         max = computeMaxBound();
         center = computeCentroid();
         dim = computeDimension();
+	}
+
+	void setZOffset(int x, int y, float zOffset)
+	{
+		setZOffset(y * WIDTH + x, zOffset);
+	}
+
+	void setZOffset(int index, float zOffset)
+	{
+		zOffsets[index] = zOffset;
+	}
+
+	float getZOffset(int x, int y)
+	{
+		return getZOffset(y * WIDTH + x);
+	}
+
+	float getZOffset(int index)
+	{
+		return zOffsets[index];
+	}
+
+	void setZLength(int x, int y, int zLength)
+	{
+		setZLength(y * WIDTH + x, zLength);
+	}
+
+	void setZLength(int index, int zLength)
+	{
+		zLengths[index] = zLength;
+	}
+
+	int getZLength(int x, int y)
+	{
+		return getZLength(y * WIDTH + x);
+	}
+
+	int getZLength(int index)
+	{
+		return zLengths[index];
 	}
 
 	vector<GLfloat> const getPosition() const
