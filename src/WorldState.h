@@ -58,9 +58,10 @@ public:
         model.init();
 		
 		glm::vec3 center = model.getCentroid();
-		glm::vec3 max = model.getMaxBound();
 		glm::vec3 min = model.getMinBound();
-		glm::vec3 dim = model.getDimension();
+		glm::vec3 max = min + glm::vec3(WIDTH * 2, 2, WIDTH * 2);
+		glm::vec3 dim = glm::vec3(WIDTH * 2, 2, WIDTH * 2);
+		dim = model.getDimension();
         printf("model loaded: bounds");
 		printf("[%.2f %.2f %.2f]..", min[0], min[1], min[2]);
 		printf("[%.2f %.2f %.2f] ", max[0], max[1], max[2]);
@@ -68,10 +69,10 @@ public:
 		camDistance = std::max(dim[0], dim[1]);
 		camPitch = 0;
 		camYaw = 0;
-		cameraPos = glm::vec3(0,WIDTH,camDistance);
-        cameraLook = glm::vec3(0,WIDTH/2,0);
-        cameraUp = glm::vec3(0,1,0);
-        
+		cameraPos = glm::vec3(0,max[1],camDistance*2);
+		cameraLook = glm::vec3(0,0,0);
+		cameraUp = glm::vec3(0,1,0);
+
 		lightPos = glm::vec4((max-center)*1.3f, 1);
         lightIntensity = glm::vec3(1,1,1);
         
@@ -283,7 +284,7 @@ public:
 			acceleration[i] = 0;
 
 			int x = i % WIDTH;
-			int y = i / 255;
+			int y = i / WIDTH;
 
 			float equilibrium = x + y;
 			model.setZOffset(i, equilibrium);

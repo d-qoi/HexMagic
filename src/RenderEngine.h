@@ -169,7 +169,8 @@ public:
 
 		//draw
 		glBindVertexArray(vertexArray);
-		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
+//		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, 40*40);
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
@@ -280,9 +281,6 @@ private:
     GLuint lightArray;
 
 	GLuint pickVertexArray;
-
-	GLuint rectBuffer;
-	GLuint pickRectBuffer;
 	
 	glm::mat4 Perspective;
 	glm::mat4 OrthoPerspective;
@@ -365,6 +363,12 @@ private:
 
 		GLuint yRectCoordBuffer;
 		GLint yRectCoordSlot;
+
+		GLuint zOffsetBuffer;
+		GLint zOffsetSlot;
+
+		GLuint zLengthBuffer;
+		GLint zLengthSlot;
 		
 		bool loaded = model.getPosition().size() > 0;
 
@@ -417,6 +421,7 @@ private:
 		glEnableVertexAttribArray(xRectCoordSlot);
 		glVertexAttribPointer(xRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glVertexAttribDivisor(xRectCoordSlot, 1);
 		checkGLError("xrect coord setup");
 
 		glGenBuffers(1, &yRectCoordBuffer);
@@ -428,8 +433,35 @@ private:
 		yRectCoordSlot =    glGetAttribLocation(shaderProg, "yCoord");
 		glEnableVertexAttribArray(yRectCoordSlot);
 		glVertexAttribPointer(yRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(yRectCoordSlot, 1);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("yrect coord setup");
+
+		glGenBuffers(1, &zOffsetBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, zOffsetBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getZOffsetsBytes(), &model.getZOffsets()[0], GL_DYNAMIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		zOffsetSlot =    glGetAttribLocation(shaderProg, "zOffset");
+		glEnableVertexAttribArray(zOffsetSlot);
+		glVertexAttribPointer(zOffsetSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(zOffsetSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("zOffset setup");
+
+//		glGenBuffers(1, &zLengthBuffer);
+//		glBindBuffer(GL_ARRAY_BUFFER, zLengthBuffer);
+//		if (loaded)
+//			glBufferData(GL_ARRAY_BUFFER, model.getZLengthsBytes(), &model.getZLengths()[0], GL_DYNAMIC_DRAW);
+//		else
+//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+//		zLengthSlot =    glGetAttribLocation(shaderProg, "zLength");
+//		glEnableVertexAttribArray(zLengthSlot);
+//		glVertexAttribPointer(zLengthSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+//		glVertexAttribDivisor(zLengthSlot, 1);
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		checkGLError("zLength setup");
 
 		// now the elements
 		glGenBuffers(1, &elementBuffer);
@@ -452,43 +484,43 @@ private:
 
 		// Setup picking buffers
 
-		glGenVertexArrays(1, &pickVertexArray);
-		glBindVertexArray(pickVertexArray);
-
-		glGenBuffers(1, &positionTextureBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
-		if(loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), &model.getPosition()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		positionTextureSlot = glGetAttribLocation(pickTextureProg, "pos");
-		glEnableVertexAttribArray(positionTextureSlot);
-		glVertexAttribPointer(positionTextureSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("p texture setup");
-
-		glGenBuffers(1, &modelIdBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, modelIdBuffer);
-		if(loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getModelIdBytes(), &model.getModelIds()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		modelIdSlot = glGetAttribLocation(pickTextureProg, "modelId");
-		glEnableVertexAttribArray(modelIdSlot);
-		glVertexAttribPointer(modelIdSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("model id setup");
-
-		glGenBuffers(1, &elementBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-		if (loaded)
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), &model.getElements()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
-		//leave the element buffer active
-		checkGLError("model setup");
-
-		glBindVertexArray(0);
+//		glGenVertexArrays(1, &pickVertexArray);
+//		glBindVertexArray(pickVertexArray);
+//
+//		glGenBuffers(1, &positionTextureBuffer);
+//		glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
+//		if(loaded)
+//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), &model.getPosition()[0], GL_STATIC_DRAW);
+//		else
+//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+//		positionTextureSlot = glGetAttribLocation(pickTextureProg, "pos");
+//		glEnableVertexAttribArray(positionTextureSlot);
+//		glVertexAttribPointer(positionTextureSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		checkGLError("p texture setup");
+//
+//		glGenBuffers(1, &modelIdBuffer);
+//		glBindBuffer(GL_ARRAY_BUFFER, modelIdBuffer);
+//		if(loaded)
+//			glBufferData(GL_ARRAY_BUFFER, model.getModelIdBytes(), &model.getModelIds()[0], GL_STATIC_DRAW);
+//		else
+//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+//		modelIdSlot = glGetAttribLocation(pickTextureProg, "modelId");
+//		glEnableVertexAttribArray(modelIdSlot);
+//		glVertexAttribPointer(modelIdSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		checkGLError("model id setup");
+//
+//		glGenBuffers(1, &elementBuffer);
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+//		if (loaded)
+//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), &model.getElements()[0], GL_STATIC_DRAW);
+//		else
+//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
+//		//leave the element buffer active
+//		checkGLError("model setup");
+//
+//		glBindVertexArray(0);
 		checkGLError("setup");
 	}
 };

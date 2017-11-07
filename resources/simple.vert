@@ -15,12 +15,12 @@ uniform int shadingMode;
 uniform int highlightX;
 uniform int highlightY;
 
-in int xCoord;
-in int yCoord;
+in uint xCoord;
+in uint yCoord;
 in float zOffset;
-in int zLength;
+in uint zLength;
 
-const int WIDTH = 4 0;
+const int WIDTH = 40;
 
 in vec3 pos;
 in vec3 colorIn;
@@ -35,19 +35,6 @@ const vec3 lightIntensity = vec3(1, 1, 1);
 const vec3 ka = vec3(0.1, 0.1, 0.1);
 const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
-
-float getModelAt(int x, int y) {
-//	for(int i = 0; i < WIDTH * WIDTH; i++) {
-//		if(i == y * WIDTH + x) {
-//			return rects[i];
-//		}
-//	}
-	return rects[y * WIDTH + x];
-}
-
-float getModel() {
-	return getModelAt(int(rectCoord.x), int(rectCoord.y));
-}
 
 //vec3 offsetPosFor(RectModel model) {
 //	return vec3(0, model.zOffset, 0);
@@ -64,15 +51,14 @@ float getModel() {
 
 void main()
 {
-	float model = getModel();
-	vec3 offset = vec3(0, 0, 0);
+	vec3 offset = vec3(2 * xCoord, zOffset + 0 * xCoord + 0 * yCoord + 0 * zLength * 0, 2 * yCoord);
 //	float offsetFromOrig = offset.y - float(model.x + model.y);
 //	if (pos.y < 0) {
 //		offset.y -= float(model.zLength);
 //	}
 
 	//hack to preserve inputs/output
-	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offset;
+	vec3 mpos = (pos + colorIn * 0 + normalIn * 0 + offset) * 0.2;
 	
 //	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
 //					  cos(offsetFromOrig*0.8),

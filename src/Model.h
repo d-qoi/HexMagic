@@ -29,7 +29,7 @@ public:
 
 		//DONE Add the OBJ vertices to the model position vector
         positions = vector<GLfloat>(); // Verted
-		elements = vector<GLushort>(); // Faces
+		elements = vector<GLuint>(); // Faces
 		colors = vector<GLfloat>(); // Colors
 
 		normals = vector<GLfloat>();
@@ -37,56 +37,128 @@ public:
 		xRectCoordinates = vector<GLuint>();
 		yRectCoordinates = vector<GLuint>();
 
-		vector<glm::vec3> normalList;
-		for (int j = 0; j < loader.vertexCount; j++) {
-			positions.push_back(GLfloat(loader.vertexList[j]->e[0]));
-			positions.push_back(GLfloat(loader.vertexList[j]->e[1])); //
-			positions.push_back(GLfloat(loader.vertexList[j]->e[2]));
-
-			normalList.push_back(glm::vec3(0));
+		positions = vector<GLfloat>();
+		for(int i = 0; i < loader.vertexCount; i++) {
+			double *array = loader.vertexList[i]->e;
+			positions.push_back(array[0]);
+			positions.push_back(array[1]);
+			positions.push_back(array[2]);
 		}
 
-		int positionOffset = positions.size();
+		//DONE Add each face's vertex indices to the element list
+		elements = vector<GLuint>();
+		colors = vector<GLfloat>();
+		for(int i = 0; i < loader.faceCount; i++) {
+			obj_face *face = loader.faceList[i];
 
-		for (int j = 0; j < loader.faceCount; j++) {
-			elements.push_back(GLuint((loader.faceList[j]->vertex_index[0]) + positionOffset/3));
-			elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
-			elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
+			//DONE Get the color attribute for each vertex
+			//  Each face has a OBJ material index that you can use to get the material data.
+			//  Use the diffuse component as the color.
+			obj_material *material = loader.materialList[face->material_index];
 
-			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
-			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
-			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
-			colors.push_back(1/64.0);
-			colors.push_back(1/64.0);
-			colors.push_back(1/64.0);
-
-			glm::vec3 v0 = glm::vec3(
-									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
-									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
-									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]
-									 );
-			glm::vec3 v1 = glm::vec3(
-									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
-									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
-									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]
-									 );
-			glm::vec3 v2 = glm::vec3(
-									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
-									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
-									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]
-									 );
-
-			normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
-			normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
-			normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
+			for(int j = 0; j < face->vertex_count; j++) {
+				elements.push_back(face->vertex_index[j]);
+				colors.push_back(material->diff[0]);
+				colors.push_back(material->diff[1]);
+				colors.push_back(material->diff[2]);
+			}
 		}
 
-		for (int i = 0; i < normalList.size(); i++) {
-			glm::vec3 norm = glm::normalize(normalList[i]);
-			normals.push_back(norm.x);
-			normals.push_back(norm.y);
-			normals.push_back(norm.z);
+		//DONE Initialize a normal list. There is one normal per vertex
+		vector<glm::vec3> normalVecs = vector<glm::vec3>(loader.vertexCount);
+
+		//DONE Loop over all faces and compute the normal for each vertex in the face.
+		//  Accumulate the computed normals into the correct vertex normal
+		for(int i = 0; i < loader.faceCount; i++) {
+			obj_face *face = loader.faceList[i];
+
+			if(face->vertex_count != 3) {
+				printf("ERROR: Face is not a triangle \n");
+				return;
+			}
+
+			int vertex0Index = face->vertex_index[0];
+			int vertex1Index = face->vertex_index[1];
+			int vertex2Index = face->vertex_index[2];
+
+			double *array0 = loader.vertexList[vertex0Index]->e;
+			double *array1 = loader.vertexList[vertex1Index]->e;
+			double *array2 = loader.vertexList[vertex2Index]->e;
+
+			glm::vec3 vertex0 = glm::vec3(array0[0], array0[1], array0[2]);
+			glm::vec3 vertex1 = glm::vec3(array1[0], array1[1], array1[2]);
+			glm::vec3 vertex2 = glm::vec3(array2[0], array2[1], array2[2]);
+
+			glm::vec3 edge0 = vertex1 - vertex0;
+			glm::vec3 edge1 = vertex2 - vertex1;
+
+			glm::vec3 normal = glm::cross(edge0, edge1);
+			normalVecs[vertex0Index] += normal;
+			normalVecs[vertex1Index] += normal;
+			normalVecs[vertex2Index] += normal;
 		}
+
+		//DONE Loop over all the normals and make the unit length.
+		normals = vector<GLfloat>();
+		for(int i = 0; i < normalVecs.size(); i++) {
+			glm::vec3 normal = glm::normalize(normalVecs[i]);
+
+			normals.push_back(normal.x);
+			normals.push_back(normal.y);
+			normals.push_back(normal.z);
+		}
+
+
+//		vector<glm::vec3> normalList = vector<glm::vec3>();
+//		for (int j = 0; j < loader.vertexCount; j++) {
+//			positions.push_back(GLfloat(loader.vertexList[j]->e[0]));
+//			positions.push_back(GLfloat(loader.vertexList[j]->e[1])); //
+//			positions.push_back(GLfloat(loader.vertexList[j]->e[2]));
+//
+//			normalList.push_back(glm::vec3(0));
+//		}
+//
+//		int positionOffset = positions.size();
+//
+//		for (int j = 0; j < loader.faceCount; j++) {
+//			elements.push_back(GLuint((loader.faceList[j]->vertex_index[0]) + positionOffset/3));
+//			elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
+//			elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
+//
+//			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
+//			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
+//			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+//			colors.push_back(1/64.0);
+//			colors.push_back(1/64.0);
+//			colors.push_back(1/64.0);
+//
+//			glm::vec3 v0 = glm::vec3(
+//									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]
+//									 );
+//			glm::vec3 v1 = glm::vec3(
+//									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]
+//									 );
+//			glm::vec3 v2 = glm::vec3(
+//									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
+//									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]
+//									 );
+//
+//			normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
+//			normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
+//			normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
+//		}
+//
+//		for (int i = 0; i < normalList.size(); i++) {
+//			glm::vec3 norm = glm::normalize(normalList[i]);
+//			normals.push_back(norm.x);
+//			normals.push_back(norm.y);
+//			normals.push_back(norm.z);
+//		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -153,7 +225,7 @@ public:
 	vector<GLfloat> const getNormal() const
 	{ return normals; }
 	
-	vector<GLushort> const getElements() const
+	vector<GLuint> const getElements() const
 	{ return elements; }
 
 	vector<GLuint> const getXRectCoordinates() const
@@ -279,7 +351,7 @@ private:
 	vector<GLfloat> positions;
 	vector<GLfloat> colors;
 	vector<GLfloat> normals;
-	vector<GLushort> elements;
+	vector<GLuint> elements;
 	vector<GLuint> modelIds;
 	vector<GLuint> xRectCoordinates;
 	vector<GLuint> yRectCoordinates;

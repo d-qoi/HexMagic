@@ -145,7 +145,7 @@ private:
 				state.translateRect(state.getSelectedIndex(), previousPos, newPos);
 			}
 
-			state.tick(lastUpdate);
+//			state.tick(lastUpdate);
 
 			lastUpdate = timer.restart().asSeconds();
 			previousPos = newPos;
