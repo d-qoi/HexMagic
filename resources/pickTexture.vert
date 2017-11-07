@@ -12,36 +12,27 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-const int WIDTH = 40;
+in float xCoord;
+in float yCoord;
+in float zOffset;
+in float zLength;
 
 in vec3 pos;
-in vec2 modelId;
-in vec2 rectCoord;
 
 flat out vec4 flatColor;
 
-//struct RectModel {
-////	int zLength;
-//	float zOffset;
-//};
-//
-//layout (std140) uniform RectBlock {
-//	RectModel rects[WIDTH*WIDTH];
-//};
-////
-//RectModel getModel() {
-//	return rects[int(rectCoord.y) * WIDTH + int(rectCoord.x)];
-//}
-//
-//vec3 offsetPos() {
-//	RectModel model = getModel();
-//	if (pos.y < 0)
-//		return vec3(0, model.zOffset - float(model.zLength), 0);
-//	return vec3(0, model.zOffset, 0);
-//}
+vec3 offsetPos() {
+	vec3 modifier = vec3(0, 0, 0);
+
+	if(pos.y < 0) {
+		modifier = vec3(0, zLength, 0);
+	}
+
+	return vec3(0, zOffset, 0) - modifier;
+}
 
 void main()
 {
-	gl_Position = P * M * vec4(pos, 1);
-	flatColor = vec4(0, 0, 0, 0);
+	gl_Position = P * M * vec4(pos + offsetPos(), 1);
+	flatColor = vec4(0, 0, xCoord/255.0, yCoord/255.0);
 }

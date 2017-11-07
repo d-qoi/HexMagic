@@ -75,40 +75,36 @@ public:
 			this->P = &OrthoPerspective;
 
 		// Render to framebuffer for picking
-//		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-//		glClearColor(0, 0, 0, 0);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//		glUseProgram(pickTextureProg);
-//
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "C"), 1, GL_FALSE, &C[0][0]);
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mR"), 1, GL_FALSE, &mR[0][0]);
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mT"), 1, GL_FALSE, &mT[0][0]);
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "M"), 1, GL_FALSE, &M[0][0]);
-//		glUniformMatrix3fv(glGetUniformLocation(pickTextureProg, "N"), 1, GL_FALSE, &N[0][0]);
-//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "L"), 1, GL_FALSE, &L[0][0]);
-//		glUniform4fv(glGetUniformLocation(pickTextureProg, "lightPos"), 1, &lightPos[0]);
-//		glUniform4fv(glGetUniformLocation(pickTextureProg, "camPos"), 1, &camPos[0]);
-//		glUniform1i(glGetUniformLocation(pickTextureProg, "shadingMode"), state.getShadingMode());
-//
-////		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
-////		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
-////		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-//
-//		// Draw
-//		glBindVertexArray(pickVertexArray);
-//		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
-//		glBindVertexArray(0);
-//		glUseProgram(0);
-//		checkGLError("texture model");
-//
-//		glFlush();
-//		glFinish();
-//
-//		if(!state.getMouseDown()) {
-//			checkIntersection(state);
-//		}
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(pickerProg);
+
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "C"), 1, GL_FALSE, &C[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "mR"), 1, GL_FALSE, &mR[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "mT"), 1, GL_FALSE, &mT[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "M"), 1, GL_FALSE, &M[0][0]);
+		glUniformMatrix3fv(glGetUniformLocation(pickerProg, "N"), 1, GL_FALSE, &N[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(pickerProg, "L"), 1, GL_FALSE, &L[0][0]);
+		glUniform4fv(glGetUniformLocation(pickerProg, "lightPos"), 1, &lightPos[0]);
+		glUniform4fv(glGetUniformLocation(pickerProg, "camPos"), 1, &camPos[0]);
+		glUniform1i(glGetUniformLocation(pickerProg, "shadingMode"), state.getShadingMode());
+
+		// Draw
+		glBindVertexArray(pickVertexArray);
+		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, WIDTH*WIDTH);
+		glBindVertexArray(0);
+		glUseProgram(0);
+		checkGLError("texture model");
+
+		glFlush();
+		glFinish();
+
+		if(!state.getMouseDown()) {
+			checkIntersection(state);
+		}
 
 		// Render to display
 		//clear the old frame
@@ -138,10 +134,14 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
-		bool found = false;
-		int highlightX = -1;
-		int highlightY = -1;
+		bool found = true;
+		float highlightX = -1;
+		float highlightY = -1;
 		// TODO: Fix
+		if(lastHighlightedIndex > 0) {
+			highlightX = (lastHighlightedIndex - 1) % WIDTH;
+			highlightY = (lastHighlightedIndex - 1) / WIDTH;
+		}
 //		for(int i = 0; i < WIDTH * WIDTH; i++) {
 //			RectModel model = state.getModel().getRects()[i];
 //
@@ -154,8 +154,8 @@ public:
 //			}
 //		}
 
-		glUniform1i(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
-		glUniform1i(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
+		glUniform1f(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
+		glUniform1f(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
 		glUniform1i(glGetUniformLocation(shaderProg, "renderHighlight"), found);
 
 //		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
@@ -269,7 +269,7 @@ public:
 
 private:
 	bool initialized;
-	GLuint pickTextureProg;
+	GLuint pickerProg;
 	GLuint shaderProg;
     GLuint lightProg;
 
@@ -324,7 +324,7 @@ private:
 	{
 		char const * texVertPath = "resources/pickTexture.vert";
 		char const * texFragPath = "resources/pickTexture.frag";
-		pickTextureProg = ShaderManager::shaderFromFile(&texVertPath, &texFragPath, 1, 1);
+		pickerProg = ShaderManager::shaderFromFile(&texVertPath, &texFragPath, 1, 1);
 
 		char const * vertPath = "resources/simple.vert";
 		char const * fragPath = "resources/simple.frag";
@@ -347,26 +347,32 @@ private:
 		GLuint elementBuffer;
 		GLuint lightBuffer;
 
-		GLuint positionTextureBuffer;
-		GLuint modelIdBuffer;
-
 		GLint normalSlot;
         GLint positionSlot;
 
-		GLint positionTextureSlot;
-		GLint modelIdSlot;
-
 		GLuint xRectCoordBuffer;
 		GLint xRectCoordSlot;
-
 		GLuint yRectCoordBuffer;
 		GLint yRectCoordSlot;
-
 		GLuint zOffsetBuffer;
 		GLint zOffsetSlot;
-
 		GLuint zLengthBuffer;
 		GLint zLengthSlot;
+
+		// Picker
+		GLuint positionPickerBuffer;
+		GLuint elementPickerBuffer;
+
+		GLint positionPickerSlot;
+
+		GLuint xRectCoordPickerBuffer;
+		GLint xRectCoordPickerSlot;
+		GLuint yRectCoordPickerBuffer;
+		GLint yRectCoordPickerSlot;
+		GLuint zOffsetPickerBuffer;
+		GLint zOffsetPickerSlot;
+		GLuint zLengthPickerBuffer;
+		GLint zLengthPickerSlot;
 		
 		bool loaded = model.getPosition().size() > 0;
 
@@ -469,43 +475,84 @@ private:
 
 		// Setup picking buffers
 
-//		glGenVertexArrays(1, &pickVertexArray);
-//		glBindVertexArray(pickVertexArray);
-//
-//		glGenBuffers(1, &positionTextureBuffer);
-//		glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
-//		if(loaded)
-//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), &model.getPosition()[0], GL_STATIC_DRAW);
-//		else
-//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-//		positionTextureSlot = glGetAttribLocation(pickTextureProg, "pos");
-//		glEnableVertexAttribArray(positionTextureSlot);
-//		glVertexAttribPointer(positionTextureSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
-//		glBindBuffer(GL_ARRAY_BUFFER, 0);
-//		checkGLError("p texture setup");
-//
-//		glGenBuffers(1, &modelIdBuffer);
-//		glBindBuffer(GL_ARRAY_BUFFER, modelIdBuffer);
-//		if(loaded)
-//			glBufferData(GL_ARRAY_BUFFER, model.getModelIdBytes(), &model.getModelIds()[0], GL_STATIC_DRAW);
-//		else
-//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-//		modelIdSlot = glGetAttribLocation(pickTextureProg, "modelId");
-//		glEnableVertexAttribArray(modelIdSlot);
-//		glVertexAttribPointer(modelIdSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-//		glBindBuffer(GL_ARRAY_BUFFER, 0);
-//		checkGLError("model id setup");
-//
-//		glGenBuffers(1, &elementBuffer);
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-//		if (loaded)
-//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), &model.getElements()[0], GL_STATIC_DRAW);
-//		else
-//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
-//		//leave the element buffer active
-//		checkGLError("model setup");
-//
-//		glBindVertexArray(0);
+		glGenVertexArrays(1, &pickVertexArray);
+		glBindVertexArray(pickVertexArray);
+
+		glGenBuffers(1, &positionPickerBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, positionPickerBuffer);
+		if(loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), &model.getPosition()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		positionPickerSlot = glGetAttribLocation(pickerProg, "pos");
+		glEnableVertexAttribArray(positionPickerSlot);
+		glVertexAttribPointer(positionPickerSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("p setup");
+
+		glGenBuffers(1, &xRectCoordPickerBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, xRectCoordPickerBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getXRectCoordinatesBytes(), &model.getXRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		xRectCoordPickerSlot =    glGetAttribLocation(pickerProg, "xCoord");
+		glEnableVertexAttribArray(xRectCoordPickerSlot);
+		glVertexAttribPointer(xRectCoordPickerSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glVertexAttribDivisor(xRectCoordPickerSlot, 1);
+		checkGLError("xrect coord setup");
+
+		glGenBuffers(1, &yRectCoordPickerBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, yRectCoordPickerBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getYRectCoordinatesBytes(), &model.getYRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		yRectCoordPickerSlot =    glGetAttribLocation(pickerProg, "yCoord");
+		glEnableVertexAttribArray(yRectCoordPickerSlot);
+		glVertexAttribPointer(yRectCoordPickerSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(yRectCoordPickerSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("yrect coord setup");
+
+		glGenBuffers(1, &zOffsetPickerBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, zOffsetPickerBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getZOffsetsBytes(), &model.getZOffsets()[0], GL_DYNAMIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		zOffsetPickerSlot =    glGetAttribLocation(pickerProg, "zOffset");
+		glEnableVertexAttribArray(zOffsetPickerSlot);
+		glVertexAttribPointer(zOffsetPickerSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(zOffsetPickerSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("zOffset setup");
+
+		glGenBuffers(1, &zLengthPickerBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, zLengthPickerBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getZLengthsBytes(), &model.getZLengths()[0], GL_DYNAMIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		zLengthPickerSlot =    glGetAttribLocation(pickerProg, "zLength");
+		glEnableVertexAttribArray(zLengthPickerSlot);
+		glVertexAttribPointer(zLengthPickerSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(zLengthPickerSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("zLength setup");
+
+		// now the elements
+		glGenBuffers(1, &elementPickerBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementPickerBuffer);
+		if (loaded)
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), &model.getElements()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
+		//leave the element buffer active
+		checkGLError("model setup");
+
+		glBindVertexArray(0);
 		checkGLError("setup");
 	}
 };

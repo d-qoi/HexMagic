@@ -17,6 +17,7 @@ uniform int renderHighlight;
 flat in vec3 highlightPos;
 in vec3 smoothPos;
 in vec3 smoothNorm;
+flat in vec3 flatDiffuseColor;
 
 out vec4 fragColor;
 
@@ -54,8 +55,6 @@ void main()
 	float dotProduct = dot(normal, incident);
 	vec4 ambient = vec4(ka * lightIntensity, 1);
 
-	// TODO: REMOVE
-	vec3 flatDiffuseColor = vec3(0,0,0);
 	vec4 diffuse = vec4(flatDiffuseColor * lightIntensity * dotProduct, 1);
 
 	vec4 normalReflect = -normalize(incident - 2 * dotProduct * normal);

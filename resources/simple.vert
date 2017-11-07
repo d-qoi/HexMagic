@@ -12,8 +12,8 @@ uniform vec4 lightPos;
 uniform vec4 camPos;
 uniform int shadingMode;
 
-uniform int highlightX;
-uniform int highlightY;
+uniform float highlightX;
+uniform float highlightY;
 
 in float xCoord;
 in float yCoord;
@@ -51,7 +51,7 @@ const float specAlpha = 10;
 void main()
 {
 	vec3 offset = vec3(2*xCoord, zOffset + 0 * xCoord + 0 * yCoord + 0 * zLength * 0, 2*yCoord);
-//	float offsetFromOrig = offset.y - float(model.x + model.y);
+	float offsetFromOrig = offset.y - (xCoord + yCoord);
 //	if (pos.y < 0) {
 //		offset.y -= float(model.zLength);
 //	}
@@ -59,14 +59,14 @@ void main()
 	//hack to preserve inputs/output
 	vec3 mpos = (pos + normalIn * 0 + offset) * 0.2;
 	
-//	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
-//					  cos(offsetFromOrig*0.8),
-//					  cos(offsetFromOrig*0.3 + 2*3.13158265/3));
-//
-//	if(getModel().highlighted != 0) {
-//		color = vec3(1,0,0);
-//	}
-//
+	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
+					  cos(offsetFromOrig*0.8),
+					  cos(offsetFromOrig*0.3 + 2*3.13158265/3));
+
+	if(xCoord == highlightX && yCoord == highlightY) {
+		color = vec3(1,0,0);
+	}
+
 //	if(highlightX < 0 || highlightY < 0) {
 		highlightPos = vec3(0, 0, 0);
 //	} else {
@@ -78,4 +78,5 @@ void main()
 
 	smoothPos = pos;
 	smoothNorm = normalIn;
+	flatDiffuseColor = color;
 }
