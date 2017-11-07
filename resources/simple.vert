@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 uniform mat4 P;  //projection matrix
 uniform mat4 C;  //camera matrix
@@ -15,22 +15,21 @@ uniform int shadingMode;
 uniform int highlightX;
 uniform int highlightY;
 
+in int xCoord;
+in int yCoord;
+
 const int WIDTH = 40;
 
 struct RectModel {
-	int x;
-	int y;
+//	int zLength;
 	float zOffset;
-	int zLength;
-	int highlighted;
-	int padding;
-	int padding2;
-	int padding3;
 };
 
-layout (std140) uniform RectBlock {
-	RectModel rects[WIDTH*WIDTH];
-};
+//layout (std140) uniform RectBlock {
+//	RectModel rects[WIDTH*WIDTH];
+//};
+
+uniform float rects[WIDTH];
 
 in vec3 pos;
 in vec3 colorIn;
@@ -47,57 +46,62 @@ const vec3 ka = vec3(0.1, 0.1, 0.1);
 const vec3 ks = vec3(1.0, 1.0, 1.0);
 const float specAlpha = 10;
 
-RectModel getModelAt(int x, int y) {
+float getModelAt(int x, int y) {
+//	for(int i = 0; i < WIDTH * WIDTH; i++) {
+//		if(i == y * WIDTH + x) {
+//			return rects[i];
+//		}
+//	}
 	return rects[y * WIDTH + x];
 }
 
-RectModel getModel() {
+float getModel() {
 	return getModelAt(int(rectCoord.x), int(rectCoord.y));
 }
 
-vec3 offsetPosFor(RectModel model) {
-	return vec3(0, model.zOffset, 0);
-}
+//vec3 offsetPosFor(RectModel model) {
+//	return vec3(0, model.zOffset, 0);
+//}
+//
+//vec3 offsetPos() {
+//	return offsetPosFor(getModel());
+//}
 
-vec3 offsetPos() {
-	return offsetPosFor(getModel());
-}
-
-float getOffsetFromOrig() {
-	RectModel model = getModel();
-	return model.zOffset - float(model.x + model.y);
-}
+//float getOffsetFromOrig() {
+//	RectModel model = getModel();
+//	return model.zOffset - float(model.x + model.y);
+//}
 
 void main()
 {
-	RectModel model = getModel();
-	vec3 offset = vec3(0, model.zOffset, 0);
-	float offsetFromOrig = offset.y - float(model.x + model.y);
-	if (pos.y < 0) {
-		offset.y -= float(model.zLength);
-	}
-	
+	float model = getModel();
+	vec3 offset = vec3(0, 0, 0);
+//	float offsetFromOrig = offset.y - float(model.x + model.y);
+//	if (pos.y < 0) {
+//		offset.y -= float(model.zLength);
+//	}
+
 	//hack to preserve inputs/output
 	vec3 mpos = pos + colorIn * 0 + normalIn * 0 + offset;
 	
-	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3), 
-					  cos(offsetFromOrig*0.8),
-					  cos(offsetFromOrig*0.3 + 2*3.13158265/3));
-
-	if(getModel().highlighted != 0) {
-		color = vec3(1,0,0);
-	}
-
-	if(highlightX < 0 || highlightY < 0) {
+//	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
+//					  cos(offsetFromOrig*0.8),
+//					  cos(offsetFromOrig*0.3 + 2*3.13158265/3));
+//
+//	if(getModel().highlighted != 0) {
+//		color = vec3(1,0,0);
+//	}
+//
+//	if(highlightX < 0 || highlightY < 0) {
 		highlightPos = vec3(0, 0, 0);
-	} else {
-		highlightPos = offsetPosFor(getModelAt(highlightX, highlightY)) + vec3(0, 0, 0);
-	}
+//	} else {
+//		highlightPos = offsetPosFor(getModelAt(highlightX, highlightY)) + vec3(0, 0, 0);
+//	}
 
 	vec4 p = M * vec4(mpos, 1);
 	gl_Position = P*p;
 
 	smoothPos = pos;
 	smoothNorm = normalIn;
-	flatDiffuseColor = color;
+	flatDiffuseColor = vec3(0,0,0);
 }

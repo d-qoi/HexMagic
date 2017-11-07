@@ -92,13 +92,13 @@ public:
 		glUniform4fv(glGetUniformLocation(pickTextureProg, "camPos"), 1, &camPos[0]);
 		glUniform1i(glGetUniformLocation(pickTextureProg, "shadingMode"), state.getShadingMode());
 
-		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
+//		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
+//		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		// Draw
 		glBindVertexArray(pickVertexArray);
-		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 		checkGLError("texture model");
@@ -141,29 +141,35 @@ public:
 		bool found = false;
 		int highlightX = -1;
 		int highlightY = -1;
-		for(int i = 0; i < WIDTH * WIDTH; i++) {
-			RectModel model = state.getModel().getRects()[i];
-
-			if(model.highlighted) {
-				highlightX = model.x;
-				highlightY = model.y;
-				found = true;
-
-				break;
-			}
-		}
+		// TODO: Fix
+//		for(int i = 0; i < WIDTH * WIDTH; i++) {
+//			RectModel model = state.getModel().getRects()[i];
+//
+//			if(model.highlighted) {
+//				highlightX = model.x;
+//				highlightY = model.y;
+//				found = true;
+//
+//				break;
+//			}
+//		}
 
 		glUniform1i(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
 		glUniform1i(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
 		glUniform1i(glGetUniformLocation(shaderProg, "renderHighlight"), found);
 
-		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//		glBindBuffer(GL_UNIFORM_BUFFER, rectBuffer);
+//		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
+//		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+//		int data;
+//		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &data);
+//
+//		printf("%d\n", data);
 
 		//draw
 		glBindVertexArray(vertexArray);
-		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
@@ -235,7 +241,7 @@ public:
 		if(state.getCursorX() < 0 || state.getCursorY() < 0) {
 			// Cursor is not on screen
 			if(lastHighlightedIndex != 0) {
-				state.getModel().clearHighlight(lastHighlightedIndex - 1);
+//				state.getModel().clearHighlight(lastHighlightedIndex - 1);
 				lastHighlightedIndex = 0;
 			}
 
@@ -251,9 +257,9 @@ public:
 		if(index != 0 && !state.getMouseDown()) {
 //			printf("Selected %d\n", index);
 			state.setSelectedIndex(index);
-			state.getModel().setHighlight(index - 1);
+//			state.getModel().setHighlight(index - 1);
 			if(lastHighlightedIndex != 0 && lastHighlightedIndex != index) {
-				state.getModel().clearHighlight(lastHighlightedIndex - 1);
+//				state.getModel().clearHighlight(lastHighlightedIndex - 1);
 			}
 			lastHighlightedIndex = index;
 		}
@@ -356,6 +362,12 @@ private:
 
 		GLuint rectCoordBuffer;
 		GLint rectCoordSlot;
+
+		GLuint xRectCoordBuffer;
+		GLint xRectCoordSlot;
+
+		GLuint yRectCoordBuffer;
+		GLint yRectCoordSlot;
 		
 		bool loaded = model.getPosition().size() > 0;
 
@@ -410,6 +422,30 @@ private:
 		glVertexAttribPointer(rectCoordSlot, 2, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("rect coord setup");
+
+		glGenBuffers(1, &xRectCoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, xRectCoordBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getXRectCoordinatesBytes(), &model.getXRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		xRectCoordSlot =    glGetAttribLocation(shaderProg, "xCoord");
+		glEnableVertexAttribArray(xRectCoordSlot);
+		glVertexAttribPointer(xRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("xrect coord setup");
+
+		glGenBuffers(1, &yRectCoordBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, yRectCoordBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getYRectCoordinatesBytes(), &model.getYRectCoordinates()[0], GL_STATIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		yRectCoordSlot =    glGetAttribLocation(shaderProg, "yCoord");
+		glEnableVertexAttribArray(yRectCoordSlot);
+		glVertexAttribPointer(yRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("yrect coord setup");
 
 		// now the elements
 		glGenBuffers(1, &elementBuffer);

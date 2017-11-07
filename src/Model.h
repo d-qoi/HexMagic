@@ -9,14 +9,8 @@ using namespace std; //makes using vectors easy
 #define WIDTH 40
 
 struct RectModel {
-	int x;
-	int y;
+//	int zLength;
 	float zOffset;
-	int zLength;
-	int highlighted;
-	int padding;
-	int padding2;
-	int padding3;
 };
 
 class Model
@@ -36,35 +30,33 @@ public:
 		for(int i = 0; i < WIDTH; i++) {
 			for(int j = 0; j < WIDTH; j++) {
 				RectModel rectModel = RectModel();
-				rectModel.x = j;
-				rectModel.y = i;
 				rectModel.zOffset = 0;
-				rectModel.zLength = WIDTH + i + j;
-				rectModel.highlighted = 0;
-				rectModel.padding = 0;
-				rectModel.padding2 = 0;
-				rectModel.padding3 = 0;
+//				rectModel.zLength = WIDTH + i + j;
 				rects.push_back(rectModel);
 			}
 		}
 
 		//DONE Add the OBJ vertices to the model position vector
         positions = vector<GLfloat>(); // Verted
-		elements = vector<GLuint>(); // Faces
+		elements = vector<GLushort>(); // Faces
 		colors = vector<GLfloat>(); // Colors
 
 		normals = vector<GLfloat>();
 
 		rectCoordinates = vector<GLuint>();
+		xRectCoordinates = vector<GLuint>();
+		yRectCoordinates = vector<GLuint>();
 
 		// 8 vertices in each rect
 		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
 
 		for(int i = 0; i < rects.size(); i++) {
+			int x = i % WIDTH;
+			int y = i / WIDTH;
 
-			rects[i].zOffset = (float)(rects[i].x + rects[i].y);
-			int xOffset = rects[i].x*2;
-			int zOffset = rects[i].y*2;
+			rects[i].zOffset = (float)(x + y);
+			int xOffset = x*2;
+			int zOffset = y*2;
 			int yOffset = 0;//rects[i].zOffset;
 
 			int positionOffset = positions.size();
@@ -72,8 +64,10 @@ public:
 				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + xOffset));
 				positions.push_back(GLfloat(loader.vertexList[j]->e[1] + yOffset)); //
 				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + zOffset));
-				rectCoordinates.push_back(rects[i].x);
-				rectCoordinates.push_back(rects[i].y);
+				rectCoordinates.push_back(x);
+				rectCoordinates.push_back(y);
+				xRectCoordinates.push_back(x);
+				yRectCoordinates.push_back(y);
 				modelIds.push_back((i+1) / 255);
 				modelIds.push_back((i+1) % 255);
 			}
@@ -131,19 +125,6 @@ public:
         dim = computeDimension();
 	}
 
-	void setHighlight(int index)
-	{
-		RectModel model = rects[index];
-		model.highlighted = 1;
-		rects[index] = model;
-	}
-
-	void clearHighlight(int index) {
-		RectModel model = rects[index];
-		model.highlighted = 0;
-		rects[index] = model;
-	}
-
 	vector<GLfloat> const getPosition() const
 	{ return positions; }
 	
@@ -153,11 +134,17 @@ public:
 	vector<GLfloat> const getNormal() const
 	{ return normals; }
 	
-	vector<GLuint> const getElements() const
+	vector<GLushort> const getElements() const
 	{ return elements; }
 
 	vector<GLuint> const getRectCoordinates() const
 	{ return rectCoordinates; }
+
+	vector<GLuint> const getXRectCoordinates() const
+	{ return xRectCoordinates; }
+
+	vector<GLuint> const getYRectCoordinates() const
+	{ return yRectCoordinates; }
 
 	vector<RectModel> getRects()
 	{ return rects; }
@@ -182,6 +169,12 @@ public:
 
 	size_t getRectCoordinatesBytes() const
 	{ return rectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getXRectCoordinatesBytes() const
+	{ return xRectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getYRectCoordinatesBytes() const
+	{ return yRectCoordinates.size()*sizeof(GLuint); }
 
 	size_t getModelIdBytes() const
 	{ return modelIds.size()*sizeof(GLuint); }
@@ -264,9 +257,11 @@ private:
 	vector<GLfloat> positions;
 	vector<GLfloat> colors;
 	vector<GLfloat> normals;
-	vector<GLuint> elements;
+	vector<GLushort> elements;
 	vector<GLuint> modelIds;
 	vector<GLuint> rectCoordinates;
+	vector<GLuint> xRectCoordinates;
+	vector<GLuint> yRectCoordinates;
 
 	size_t objectCount;
     

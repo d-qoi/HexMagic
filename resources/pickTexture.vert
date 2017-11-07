@@ -20,34 +20,28 @@ in vec2 rectCoord;
 
 flat out vec4 flatColor;
 
-struct RectModel {
-	int x;
-	int y;
-	float zOffset;
-	int zLength;
-	int highlighted;
-	int padding;
-	int padding2;
-	int padding3;
-};
-
-layout (std140) uniform RectBlock {
-	RectModel rects[WIDTH*WIDTH];
-};
-
-RectModel getModel() {
-	return rects[int(rectCoord.y) * WIDTH + int(rectCoord.x)];
-}
-
-vec3 offsetPos() {
-	RectModel model = getModel();
-	if (pos.y < 0)
-		return vec3(0, model.zOffset - float(model.zLength), 0);
-	return vec3(0, model.zOffset, 0);
-}
+//struct RectModel {
+////	int zLength;
+//	float zOffset;
+//};
+//
+//layout (std140) uniform RectBlock {
+//	RectModel rects[WIDTH*WIDTH];
+//};
+////
+//RectModel getModel() {
+//	return rects[int(rectCoord.y) * WIDTH + int(rectCoord.x)];
+//}
+//
+//vec3 offsetPos() {
+//	RectModel model = getModel();
+//	if (pos.y < 0)
+//		return vec3(0, model.zOffset - float(model.zLength), 0);
+//	return vec3(0, model.zOffset, 0);
+//}
 
 void main()
 {
-	gl_Position = P * M * vec4(pos + offsetPos(), 1);
-	flatColor = vec4(0, 0, modelId.x/255.0, modelId.y/255.0);
+	gl_Position = P * M * vec4(pos, 1);
+	flatColor = vec4(0, 0, 0, 0);
 }

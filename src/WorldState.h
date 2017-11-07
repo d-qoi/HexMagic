@@ -284,7 +284,10 @@ public:
 
 			RectModel *rectModel = &model.rects[i];
 
-			float equilibrium = rectModel->x + rectModel->y;
+			int x = i % WIDTH;
+			int y = i / 255;
+
+			float equilibrium = x + y;
 			rectModel->zOffset = equilibrium;
 		}
 	}
@@ -324,7 +327,7 @@ public:
 
 			RectModel *rectModel = &model.rects[i];
 
-			float equilibrium = rectModel->x + rectModel->y;
+			float equilibrium = x + y;
 			float offset = rectModel->zOffset - equilibrium;
 
 			float sum = 0.0f;
@@ -333,27 +336,27 @@ public:
 			if(x != 0) {
 				// Previous x
 				RectModel prev = model.rects[i-1];
-				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				double prevOffset = prev.zOffset - (x - 1 + y);
 				sum -= (offset - prevOffset) * K;
 			}
 			if(x != WIDTH-1) {
 				// Next x
 				RectModel prev = model.rects[i+1];
-				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				double prevOffset = prev.zOffset - (x + 1 + y);
 				sum -= (offset - prevOffset) * K;
 			}
 
 			if(y != 0) {
 				// Previous y
 				RectModel prev = model.rects[i-WIDTH];
-				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				double prevOffset = prev.zOffset - (y - 1 + x);
 				sum -= (offset - prevOffset) * K;
 			}
 
 			if(y != WIDTH-1) {
 				// Next y
 				RectModel prev = model.rects[i+WIDTH];
-				double prevOffset = prev.zOffset - (prev.x + prev.y);
+				double prevOffset = prev.zOffset - (y + 1 + x);
 				sum -= (offset - prevOffset) * K;
 			}
 
@@ -363,6 +366,9 @@ public:
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
+			int x = i % WIDTH;
+			int y = i / WIDTH;
+
 			if(mouseDown && i == selectedIndex - 1) {
 				// Do not mess with position of object if currently held by mouse
 				continue;
@@ -370,7 +376,7 @@ public:
 			RectModel *rectModel = &model.rects[i];
 			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
 			if (change > -0.001f && change < 0.001f) {
-				rectModel->zOffset = rectModel->x + rectModel->y;
+				rectModel->zOffset = x + y;
 			} else {
 				rectModel->zOffset += velocity[i] * t + 0.5 * acceleration[i] * t * t;
 			}
