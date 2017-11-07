@@ -37,6 +37,7 @@ public:
 		WorldState state;
 		render.init(state);
 		render.buildRenderBuffers(App->getSize().x, App->getSize().y);
+		state.setWindowSize(App->getSize());
 
 		previousPos = glm::vec2(0);
 		buttonDown[0]=false;
@@ -132,6 +133,11 @@ private:
 					state.setMouseDown(false);
 
 				lastUpdate = timer.getElapsedTime().asSeconds();
+			}
+
+			if(event.type == sf::Event::Resized) {
+				render.reshape(event.size.width, event.size.height);
+				state.setWindowSize(App->getSize());
 			}
 		}
 

@@ -150,6 +150,11 @@ public:
 
 	void buildRenderBuffers(size_t xSize, size_t ySize)
 	{
+		if(frameBuffer != 0) {
+			glDeleteRenderbuffers(1, &renderBuffer);
+			glDeleteRenderbuffers(1, &idRenderBuffer);
+		}
+
 		glGenFramebuffers(1, &frameBuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -184,6 +189,13 @@ public:
 		checkGLError("frame buffer");
 	}
 
+	void reshape(int const & newWidth, int const & newHeight)
+	{
+		Perspective = glm::perspective((float)(60.0/180.0 * M_PI), (float)newWidth / (float)newHeight, 0.1f, 100.0f);
+		glViewport(0, 0, newWidth, newHeight);
+		buildRenderBuffers(newWidth, newHeight);
+	}
+
 	void checkIntersection(WorldState & state) {
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -199,7 +211,7 @@ public:
 			return;
 		}
 
-		glReadPixels(state.getCursorX(), RESOLUTION - state.getCursorY(), 1, 1, GL_RGBA, GL_FLOAT, colorData);
+		glReadPixels(state.getCursorX(), state.getWindowHeight() - state.getCursorY(), 1, 1, GL_RGBA, GL_FLOAT, colorData);
 
 		float y = colorData[3] * 255.0 - 1;
 		float x = colorData[2] * 255.0 - 1;

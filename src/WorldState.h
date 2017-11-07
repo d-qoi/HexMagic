@@ -39,6 +39,9 @@ private:
 	double cursorX;
 	double cursorY;
 
+	double windowWidth;
+	double windowHeight;
+
 	bool mouseDown;
 
 	int selectedIndex;
@@ -90,6 +93,9 @@ public:
 		currentTime = 0;
 		cursorX = 0;
 		cursorY = 0;
+
+		windowWidth = 0;
+		windowHeight = 0;
 
 		mouseDown = false;
 		selectedIndex = 0;
@@ -195,7 +201,8 @@ public:
 	void toggleLightRotate()
 	{ lightRotating = !lightRotating; }
 
-	void setCursorPos(sf::Vector2i pos, sf::Vector2u windowSize) {
+	void setCursorPos(sf::Vector2i pos, sf::Vector2u windowSize)
+	{
 		double x = (double)pos.x;
 		double y = (double)pos.y;
 
@@ -220,6 +227,18 @@ public:
 
 	double getCursorY()
 	{ return cursorY; }
+
+	void setWindowSize(sf::Vector2u windowSize)
+	{
+		windowWidth = windowSize.x;
+		windowHeight = windowSize.y;
+	}
+
+	double getWindowWidth()
+	{ return windowWidth; }
+
+	double getWindowHeight()
+	{ return windowHeight; }
 
 	void moveCamera(double x, double y, double z)
 	{
