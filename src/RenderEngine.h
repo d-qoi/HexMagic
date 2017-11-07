@@ -435,18 +435,18 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("zOffset setup");
 
-//		glGenBuffers(1, &zLengthBuffer);
-//		glBindBuffer(GL_ARRAY_BUFFER, zLengthBuffer);
-//		if (loaded)
-//			glBufferData(GL_ARRAY_BUFFER, model.getZLengthsBytes(), &model.getZLengths()[0], GL_DYNAMIC_DRAW);
-//		else
-//			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-//		zLengthSlot =    glGetAttribLocation(shaderProg, "zLength");
-//		glEnableVertexAttribArray(zLengthSlot);
-//		glVertexAttribPointer(zLengthSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-//		glVertexAttribDivisor(zLengthSlot, 1);
-//		glBindBuffer(GL_ARRAY_BUFFER, 0);
-//		checkGLError("zLength setup");
+		glGenBuffers(1, &zLengthBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, zLengthBuffer);
+		if (loaded)
+			glBufferData(GL_ARRAY_BUFFER, model.getZLengthsBytes(), &model.getZLengths()[0], GL_DYNAMIC_DRAW);
+		else
+			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
+		zLengthSlot =    glGetAttribLocation(shaderProg, "zLength");
+		glEnableVertexAttribArray(zLengthSlot);
+		glVertexAttribPointer(zLengthSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribDivisor(zLengthSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		checkGLError("zLength setup");
 
 		// now the elements
 		glGenBuffers(1, &elementBuffer);

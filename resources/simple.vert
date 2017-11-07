@@ -18,7 +18,7 @@ uniform int highlightY;
 in float xCoord;
 in float yCoord;
 in float zOffset;
-in uint zLength;
+in float zLength;
 
 const int WIDTH = 40;
 

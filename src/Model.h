@@ -19,7 +19,7 @@ public:
 			exit(EXIT_FAILURE);
 
 		zOffsets = vector<GLfloat>();
-		zLengths = vector<GLuint>();
+		zLengths = vector<GLfloat>();
 		for(int i = 0; i < WIDTH; i++) {
 			for(int j = 0; j < WIDTH; j++) {
 				zOffsets.push_back(i + j);
@@ -144,12 +144,12 @@ public:
 		zLengths[index] = zLength;
 	}
 
-	int getZLength(int x, int y)
+	GLfloat getZLength(int x, int y)
 	{
 		return getZLength(y * WIDTH + x);
 	}
 
-	int getZLength(int index)
+	GLfloat getZLength(int index)
 	{
 		return zLengths[index];
 	}
@@ -172,7 +172,7 @@ public:
 	vector<GLfloat> const getZOffsets() const
 	{ return zOffsets; }
 
-	vector<GLuint> const getZLengths() const
+	vector<GLfloat> const getZLengths() const
 	{ return zLengths; }
 
 	vector<GLuint> const getModelIds() const
@@ -200,7 +200,7 @@ public:
 	{ return zOffsets.size()*sizeof(GLfloat); }
 
 	size_t getZLengthsBytes() const
-	{ return zLengths.size()*sizeof(GLuint); }
+	{ return zLengths.size()*sizeof(GLfloat); }
 
 	size_t getModelIdBytes() const
 	{ return modelIds.size()*sizeof(GLuint); }
@@ -287,7 +287,7 @@ private:
 	vector<GLfloat> xRectCoordinates;
 	vector<GLfloat> yRectCoordinates;
 	vector<GLfloat> zOffsets;
-	vector<GLuint> zLengths;
+	vector<GLfloat> zLengths;
 
 	size_t objectCount;
     
