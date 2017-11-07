@@ -48,16 +48,25 @@ const float specAlpha = 10;
 //	return model.zOffset - float(model.x + model.y);
 //}
 
+vec3 offsetPos() {
+	vec3 modifier = vec3(0, 0, 0);
+
+	if(pos.y < 0) {
+		modifier = vec3(0, zLength, 0);
+	}
+
+	return (vec3(2 * xCoord, zOffset, 2 * yCoord) - modifier);
+}
+
 void main()
 {
-	vec3 offset = vec3(2*xCoord, zOffset + 0 * xCoord + 0 * yCoord + 0 * zLength * 0, 2*yCoord);
-	float offsetFromOrig = offset.y - (xCoord + yCoord);
+	float offsetFromOrig = zOffset - (xCoord + yCoord);
 //	if (pos.y < 0) {
 //		offset.y -= float(model.zLength);
 //	}
 
 	//hack to preserve inputs/output
-	vec3 mpos = (pos + normalIn * 0 + offset) * 0.2;
+	vec3 mpos = (pos + normalIn * 0 + offsetPos()) * 0.2;
 	
 	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
 					  cos(offsetFromOrig*0.8),

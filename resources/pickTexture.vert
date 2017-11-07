@@ -28,11 +28,11 @@ vec3 offsetPos() {
 		modifier = vec3(0, zLength, 0);
 	}
 
-	return vec3(0, zOffset, 0) - modifier;
+	return (vec3(2 * xCoord, zOffset, 2 * yCoord) - modifier);
 }
 
 void main()
 {
-	gl_Position = P * M * vec4(pos + offsetPos(), 1);
-	flatColor = vec4(0, 0, xCoord/255.0, yCoord/255.0);
+	gl_Position = P * M * vec4((pos + offsetPos()) * 0.2, 1);
+	flatColor = vec4(0, 0, yCoord/255.0, xCoord/255.0);
 }

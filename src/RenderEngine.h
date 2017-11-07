@@ -134,7 +134,7 @@ public:
         glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
         glUniform1i(glGetUniformLocation(shaderProg, "shadingMode"), state.getShadingMode());
 
-		bool found = true;
+		bool found = false;
 		float highlightX = -1;
 		float highlightY = -1;
 		// TODO: Fix
@@ -411,8 +411,8 @@ private:
 		xRectCoordSlot =    glGetAttribLocation(shaderProg, "xCoord");
 		glEnableVertexAttribArray(xRectCoordSlot);
 		glVertexAttribPointer(xRectCoordSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glVertexAttribDivisor(xRectCoordSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("xrect coord setup");
 
 		glGenBuffers(1, &yRectCoordBuffer);
@@ -499,8 +499,8 @@ private:
 		xRectCoordPickerSlot =    glGetAttribLocation(pickerProg, "xCoord");
 		glEnableVertexAttribArray(xRectCoordPickerSlot);
 		glVertexAttribPointer(xRectCoordPickerSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glVertexAttribDivisor(xRectCoordPickerSlot, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("xrect coord setup");
 
 		glGenBuffers(1, &yRectCoordPickerBuffer);
