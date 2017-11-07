@@ -36,8 +36,6 @@ public:
 	{
 		initialized = true;
 
-		lastHighlightedIndex = 0;
-
 		float ver = initLoader();
 		if( ver < 1.0f ) {
 			printf("OpenGL is not supported.\n");
@@ -138,9 +136,9 @@ public:
 		float highlightX = -1;
 		float highlightY = -1;
 		// TODO: Fix
-		if(lastHighlightedIndex > 0) {
-			highlightX = (lastHighlightedIndex - 1) % WIDTH;
-			highlightY = (lastHighlightedIndex - 1) / WIDTH;
+		if(state.getSelectedIndex() > 0) {
+			highlightX = (state.getSelectedIndex() - 1) % WIDTH;
+			highlightY = (state.getSelectedIndex() - 1) / WIDTH;
 		}
 //		for(int i = 0; i < WIDTH * WIDTH; i++) {
 //			RectModel model = state.getModel().getRects()[i];
@@ -231,38 +229,33 @@ public:
 		checkGLError("frame buffer");
 	}
 
-	int lastHighlightedIndex;
-
 	void checkIntersection(WorldState & state) {
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		unsigned char colorData[4];
+		float colorData[4];
 
 		if(state.getCursorX() < 0 || state.getCursorY() < 0) {
 			// Cursor is not on screen
-			if(lastHighlightedIndex != 0) {
-//				state.getModel().clearHighlight(lastHighlightedIndex - 1);
-				lastHighlightedIndex = 0;
+			if(state.getSelectedIndex() != 0) {
+				state.setSelectedIndex(0);
 			}
 
 			return;
 		}
 
-		glReadPixels(state.getCursorX(), RESOLUTION - state.getCursorY(), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, colorData);
+		glReadPixels(state.getCursorX(), RESOLUTION - state.getCursorY(), 1, 1, GL_RGBA, GL_FLOAT, colorData);
 
-		int y = colorData[3];
-		int x = colorData[2];
-		int index = x * 255 + y;
+		float y = colorData[3] * 255.0 - 1;
+		float x = colorData[2] * 255.0 - 1;
+
+		// Add 1 to index, as no selection is index 0
+		int index = x + y * WIDTH + 1;
+
+		printf("%f %f\n", x, y);
 
 		if(index != 0 && !state.getMouseDown()) {
-//			printf("Selected %d\n", index);
 			state.setSelectedIndex(index);
-//			state.getModel().setHighlight(index - 1);
-			if(lastHighlightedIndex != 0 && lastHighlightedIndex != index) {
-//				state.getModel().clearHighlight(lastHighlightedIndex - 1);
-			}
-			lastHighlightedIndex = index;
 		}
 	}
 

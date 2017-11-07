@@ -34,5 +34,6 @@ vec3 offsetPos() {
 void main()
 {
 	gl_Position = P * M * vec4((pos + offsetPos()) * 0.2, 1);
-	flatColor = vec4(0, 0, yCoord/255.0, xCoord/255.0);
+	// This forces a 254x254 limit on cubes
+	flatColor = vec4(0, 0, (xCoord + 1)/255.0, (yCoord + 1)/255.0);
 }
