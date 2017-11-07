@@ -23,7 +23,6 @@ in uint zLength;
 const int WIDTH = 40;
 
 in vec3 pos;
-in vec3 colorIn;
 in vec3 normalIn;
 
 out vec3 smoothPos;
@@ -58,7 +57,7 @@ void main()
 //	}
 
 	//hack to preserve inputs/output
-	vec3 mpos = (pos + colorIn * 0 + normalIn * 0 + offset) * 0.2;
+	vec3 mpos = (pos + normalIn * 0 + offset) * 0.2;
 	
 //	vec3 color = vec3(cos(offsetFromOrig*0.3 + 4*3.14159265/3),
 //					  cos(offsetFromOrig*0.8),
@@ -79,5 +78,4 @@ void main()
 
 	smoothPos = pos;
 	smoothNorm = normalIn;
-	flatDiffuseColor = vec3(0,0,0);
 }

@@ -170,7 +170,7 @@ public:
 		//draw
 		glBindVertexArray(vertexArray);
 //		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
-		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, 40*40);
+		glDrawElementsInstanced(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_INT, 0, WIDTH*WIDTH);
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
@@ -343,7 +343,6 @@ private:
 		glBindVertexArray(vertexArray);
 		
 		GLuint positionBuffer;
-		GLuint colorBuffer;
 		GLuint normalBuffer;
 		GLuint elementBuffer;
 		GLuint lightBuffer;
@@ -351,7 +350,6 @@ private:
 		GLuint positionTextureBuffer;
 		GLuint modelIdBuffer;
 
-        GLint colorSlot;
 		GLint normalSlot;
         GLint positionSlot;
 
@@ -384,19 +382,6 @@ private:
 		glVertexAttribPointer(positionSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("p setup");
-
-		// Do the same thing for the color data
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		if (loaded)
-			glBufferData(GL_ARRAY_BUFFER, model.getColorBytes(), &model.getColor()[0], GL_STATIC_DRAW);
-		else
-			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
-		colorSlot =    glGetAttribLocation(shaderProg, "colorIn");
-		glEnableVertexAttribArray(colorSlot);
-		glVertexAttribPointer(colorSlot, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		checkGLError("color setup");
 
 		// And normals
 		glGenBuffers(1, &normalBuffer);
