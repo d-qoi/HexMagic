@@ -16,8 +16,6 @@ struct RectModel {
 class Model
 {
 public:
-	vector<RectModel> rects;
-
 	void init()
     {
     	objLoader loader;
@@ -25,14 +23,12 @@ public:
 		if (loader.materialCount == 0)
 			exit(EXIT_FAILURE);
 
-		rects = vector<RectModel>();
-
+		zOffsets = vector<GLfloat>();
+		zLengths = vector<GLuint>();
 		for(int i = 0; i < WIDTH; i++) {
 			for(int j = 0; j < WIDTH; j++) {
-				RectModel rectModel = RectModel();
-				rectModel.zOffset = 0;
-//				rectModel.zLength = WIDTH + i + j;
-				rects.push_back(rectModel);
+				zOffsets.push_back(i + j);
+				zLengths.push_back(WIDTH + i + j);
 			}
 		}
 
@@ -43,80 +39,68 @@ public:
 
 		normals = vector<GLfloat>();
 
-		rectCoordinates = vector<GLuint>();
 		xRectCoordinates = vector<GLuint>();
 		yRectCoordinates = vector<GLuint>();
 
-		// 8 vertices in each rect
-		vector<glm::vec3> normalVecs = vector<glm::vec3>(rects.size() * 8);
+		vector<glm::vec3> normalList;
+		for (int j = 0; j < loader.vertexCount; j++) {
+			positions.push_back(GLfloat(loader.vertexList[j]->e[0]));
+			positions.push_back(GLfloat(loader.vertexList[j]->e[1])); //
+			positions.push_back(GLfloat(loader.vertexList[j]->e[2]));
 
-		for(int i = 0; i < rects.size(); i++) {
+			normalList.push_back(glm::vec3(0));
+		}
+
+		int positionOffset = positions.size();
+
+		for (int j = 0; j < loader.faceCount; j++) {
+			elements.push_back(GLuint((loader.faceList[j]->vertex_index[0]) + positionOffset/3));
+			elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
+			elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
+
+			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
+			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
+			//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
+			colors.push_back(1/64.0);
+			colors.push_back(1/64.0);
+			colors.push_back(1/64.0);
+
+			glm::vec3 v0 = glm::vec3(
+									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
+									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
+									 loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]
+									 );
+			glm::vec3 v1 = glm::vec3(
+									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
+									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
+									 loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]
+									 );
+			glm::vec3 v2 = glm::vec3(
+									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
+									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
+									 loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]
+									 );
+
+			normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
+			normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
+			normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
+		}
+
+		for (int i = 0; i < normalList.size(); i++) {
+			glm::vec3 norm = glm::normalize(normalList[i]);
+			normals.push_back(norm.x);
+			normals.push_back(norm.y);
+			normals.push_back(norm.z);
+		}
+
+		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
 			int y = i / WIDTH;
 
-			rects[i].zOffset = (float)(x + y);
-			int xOffset = x*2;
-			int zOffset = y*2;
-			int yOffset = 0;//rects[i].zOffset;
-
-			int positionOffset = positions.size();
-			for (int j = 0; j < loader.vertexCount; j++) {
-				positions.push_back(GLfloat(loader.vertexList[j]->e[0] + xOffset));
-				positions.push_back(GLfloat(loader.vertexList[j]->e[1] + yOffset)); //
-				positions.push_back(GLfloat(loader.vertexList[j]->e[2] + zOffset));
-				rectCoordinates.push_back(x);
-				rectCoordinates.push_back(y);
-				xRectCoordinates.push_back(x);
-				yRectCoordinates.push_back(y);
-				modelIds.push_back((i+1) / 255);
-				modelIds.push_back((i+1) % 255);
-			}
-
-			int elementOffset = elements.size();
-			for (int j = 0; j < loader.faceCount; j++) {
-				elements.push_back(GLuint((loader.faceList[j]->vertex_index[0]) + positionOffset/3));
-				elements.push_back(GLuint((loader.faceList[j]->vertex_index[1]) + positionOffset/3));
-				elements.push_back(GLuint((loader.faceList[j]->vertex_index[2]) + positionOffset/3));
-
-//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[0]);
-//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[1]);
-//				colors.push_back(loader.materialList[loader.faceList[j]->material_index]->diff[2]);
-				colors.push_back(1/64.0);
-				colors.push_back(1/64.0);
-				colors.push_back(1/64.0);
-			}
-			vector<glm::vec3> normalList;
-			for (int j = 0; j < loader.vertexCount; j++) {
-				normalList.push_back(glm::vec3(0));
-			}
-
-			for(int j = 0; j<loader.faceCount; j++) {
-				glm::vec3 v0 = glm::vec3(
-						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[0],
-						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[0]]->e[2]
-				);
-				glm::vec3 v1 = glm::vec3(
-						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[0],
-						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[1]]->e[2]
-				);
-				glm::vec3 v2 = glm::vec3(
-						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[0],
-						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[1],
-						loader.vertexList[loader.faceList[j]->vertex_index[2]]->e[2]
-				);
-
-				normalList[loader.faceList[j]->vertex_index[1]] += glm::cross(v0-v1, v1-v2);
-				normalList[loader.faceList[j]->vertex_index[2]] += glm::cross(v1-v2, v2-v0);
-				normalList[loader.faceList[j]->vertex_index[0]] += glm::cross(v2-v0, v0-v1);
-			}
-			for (int i = 0; i < normalList.size(); i++) {
-				glm::vec3 norm = glm::normalize(normalList[i]);
-				normals.push_back(norm.x);
-				normals.push_back(norm.y);
-				normals.push_back(norm.z);
-			}
+			xRectCoordinates.push_back(x);
+			yRectCoordinates.push_back(y);
+			modelIds.push_back((i+1) / 255);
+			modelIds.push_back((i+1) % 255);
 		}
 
         min = computeMinBound();
@@ -137,17 +121,17 @@ public:
 	vector<GLushort> const getElements() const
 	{ return elements; }
 
-	vector<GLuint> const getRectCoordinates() const
-	{ return rectCoordinates; }
-
 	vector<GLuint> const getXRectCoordinates() const
 	{ return xRectCoordinates; }
 
 	vector<GLuint> const getYRectCoordinates() const
 	{ return yRectCoordinates; }
 
-	vector<RectModel> getRects()
-	{ return rects; }
+	vector<GLfloat> const getZOffsets() const
+	{ return zOffsets; }
+
+	vector<GLuint> const getZLengths() const
+	{ return zLengths; }
 
 	vector<GLuint> const getModelIds() const
 	{ return modelIds; }
@@ -167,14 +151,17 @@ public:
 	size_t getElementBytes() const
 	{ return elements.size()*sizeof(GLuint); }
 
-	size_t getRectCoordinatesBytes() const
-	{ return rectCoordinates.size()*sizeof(GLuint); }
-
 	size_t getXRectCoordinatesBytes() const
 	{ return xRectCoordinates.size()*sizeof(GLuint); }
 
 	size_t getYRectCoordinatesBytes() const
 	{ return yRectCoordinates.size()*sizeof(GLuint); }
+
+	size_t getZOffsetsBytes() const
+	{ return zOffsets.size()*sizeof(GLfloat); }
+
+	size_t getZLengthsBytes() const
+	{ return zLengths.size()*sizeof(GLuint); }
 
 	size_t getModelIdBytes() const
 	{ return modelIds.size()*sizeof(GLuint); }
@@ -259,9 +246,10 @@ private:
 	vector<GLfloat> normals;
 	vector<GLushort> elements;
 	vector<GLuint> modelIds;
-	vector<GLuint> rectCoordinates;
 	vector<GLuint> xRectCoordinates;
 	vector<GLuint> yRectCoordinates;
+	vector<GLfloat> zOffsets;
+	vector<GLuint> zLengths;
 
 	size_t objectCount;
     

@@ -75,40 +75,40 @@ public:
 			this->P = &OrthoPerspective;
 
 		// Render to framebuffer for picking
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		glClearColor(0, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glUseProgram(pickTextureProg);
-
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "C"), 1, GL_FALSE, &C[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mR"), 1, GL_FALSE, &mR[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mT"), 1, GL_FALSE, &mT[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "M"), 1, GL_FALSE, &M[0][0]);
-		glUniformMatrix3fv(glGetUniformLocation(pickTextureProg, "N"), 1, GL_FALSE, &N[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "L"), 1, GL_FALSE, &L[0][0]);
-		glUniform4fv(glGetUniformLocation(pickTextureProg, "lightPos"), 1, &lightPos[0]);
-		glUniform4fv(glGetUniformLocation(pickTextureProg, "camPos"), 1, &camPos[0]);
-		glUniform1i(glGetUniformLocation(pickTextureProg, "shadingMode"), state.getShadingMode());
-
-//		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
-//		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
-//		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-		// Draw
-		glBindVertexArray(pickVertexArray);
-		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
-		glBindVertexArray(0);
-		glUseProgram(0);
-		checkGLError("texture model");
-
-		glFlush();
-		glFinish();
-
-		if(!state.getMouseDown()) {
-			checkIntersection(state);
-		}
+//		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+//		glClearColor(0, 0, 0, 0);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//		glUseProgram(pickTextureProg);
+//
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "C"), 1, GL_FALSE, &C[0][0]);
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mR"), 1, GL_FALSE, &mR[0][0]);
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "mT"), 1, GL_FALSE, &mT[0][0]);
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "M"), 1, GL_FALSE, &M[0][0]);
+//		glUniformMatrix3fv(glGetUniformLocation(pickTextureProg, "N"), 1, GL_FALSE, &N[0][0]);
+//		glUniformMatrix4fv(glGetUniformLocation(pickTextureProg, "L"), 1, GL_FALSE, &L[0][0]);
+//		glUniform4fv(glGetUniformLocation(pickTextureProg, "lightPos"), 1, &lightPos[0]);
+//		glUniform4fv(glGetUniformLocation(pickTextureProg, "camPos"), 1, &camPos[0]);
+//		glUniform1i(glGetUniformLocation(pickTextureProg, "shadingMode"), state.getShadingMode());
+//
+////		glBindBuffer(GL_UNIFORM_BUFFER, pickRectBuffer);
+////		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(RectModel)*WIDTH*WIDTH, &state.getModel().getRects()[0]);
+////		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//
+//		// Draw
+//		glBindVertexArray(pickVertexArray);
+//		glDrawElements(GL_TRIANGLES, state.getModel().getElements().size(), GL_UNSIGNED_SHORT, 0);
+//		glBindVertexArray(0);
+//		glUseProgram(0);
+//		checkGLError("texture model");
+//
+//		glFlush();
+//		glFinish();
+//
+//		if(!state.getMouseDown()) {
+//			checkIntersection(state);
+//		}
 
 		// Render to display
 		//clear the old frame

@@ -17,24 +17,14 @@ uniform int highlightY;
 
 in int xCoord;
 in int yCoord;
+in float zOffset;
+in int zLength;
 
-const int WIDTH = 40;
-
-struct RectModel {
-//	int zLength;
-	float zOffset;
-};
-
-//layout (std140) uniform RectBlock {
-//	RectModel rects[WIDTH*WIDTH];
-//};
-
-uniform float rects[WIDTH];
+const int WIDTH = 4 0;
 
 in vec3 pos;
 in vec3 colorIn;
 in vec3 normalIn;
-in vec2 rectCoord;
 
 out vec3 smoothPos;
 out vec3 smoothNorm;
