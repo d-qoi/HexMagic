@@ -15,8 +15,8 @@ uniform int shadingMode;
 uniform int highlightX;
 uniform int highlightY;
 
-in uint xCoord;
-in uint yCoord;
+in float xCoord;
+in float yCoord;
 in float zOffset;
 in uint zLength;
 
@@ -51,7 +51,7 @@ const float specAlpha = 10;
 
 void main()
 {
-	vec3 offset = vec3(2 * xCoord, zOffset + 0 * xCoord + 0 * yCoord + 0 * zLength * 0, 2 * yCoord);
+	vec3 offset = vec3(2*xCoord, zOffset + 0 * xCoord + 0 * yCoord + 0 * zLength * 0, 2*yCoord);
 //	float offsetFromOrig = offset.y - float(model.x + model.y);
 //	if (pos.y < 0) {
 //		offset.y -= float(model.zLength);

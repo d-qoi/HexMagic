@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 uniform mat4 P;  //projection matrix
 uniform mat4 C;  //camera matrix

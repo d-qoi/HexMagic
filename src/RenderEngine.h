@@ -419,7 +419,7 @@ private:
 			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
 		xRectCoordSlot =    glGetAttribLocation(shaderProg, "xCoord");
 		glEnableVertexAttribArray(xRectCoordSlot);
-		glVertexAttribPointer(xRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(xRectCoordSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glVertexAttribDivisor(xRectCoordSlot, 1);
 		checkGLError("xrect coord setup");
@@ -432,7 +432,7 @@ private:
 			glBufferData(GL_ARRAY_BUFFER, model.getPositionBytes(), NULL, GL_STATIC_DRAW);
 		yRectCoordSlot =    glGetAttribLocation(shaderProg, "yCoord");
 		glEnableVertexAttribArray(yRectCoordSlot);
-		glVertexAttribPointer(yRectCoordSlot, 1, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(yRectCoordSlot, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glVertexAttribDivisor(yRectCoordSlot, 1);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		checkGLError("yrect coord setup");

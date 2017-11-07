@@ -34,8 +34,8 @@ public:
 
 		normals = vector<GLfloat>();
 
-		xRectCoordinates = vector<GLuint>();
-		yRectCoordinates = vector<GLuint>();
+		xRectCoordinates = vector<GLfloat>();
+		yRectCoordinates = vector<GLfloat>();
 
 		positions = vector<GLfloat>();
 		for(int i = 0; i < loader.vertexCount; i++) {
@@ -228,10 +228,10 @@ public:
 	vector<GLuint> const getElements() const
 	{ return elements; }
 
-	vector<GLuint> const getXRectCoordinates() const
+	vector<GLfloat> const getXRectCoordinates() const
 	{ return xRectCoordinates; }
 
-	vector<GLuint> const getYRectCoordinates() const
+	vector<GLfloat> const getYRectCoordinates() const
 	{ return yRectCoordinates; }
 
 	vector<GLfloat> const getZOffsets() const
@@ -353,8 +353,8 @@ private:
 	vector<GLfloat> normals;
 	vector<GLuint> elements;
 	vector<GLuint> modelIds;
-	vector<GLuint> xRectCoordinates;
-	vector<GLuint> yRectCoordinates;
+	vector<GLfloat> xRectCoordinates;
+	vector<GLfloat> yRectCoordinates;
 	vector<GLfloat> zOffsets;
 	vector<GLuint> zLengths;
 
