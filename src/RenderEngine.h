@@ -178,7 +178,6 @@ public:
 	void buildRenderBuffers(size_t xSize, size_t ySize)
 	{
 		if(pickerFrameBuffer != 0) {
-			// TODO: Delete framebuffers
 			glDeleteRenderbuffers(1, &pickerDepthRenderBuffer);
 			glDeleteRenderbuffers(1, &pickerRenderBuffer);
 
