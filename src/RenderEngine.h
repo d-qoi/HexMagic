@@ -78,7 +78,7 @@ public:
 			this->P = &OrthoPerspective;
 
 		// Render to framebuffer for picking
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, pickerFrameBuffer);
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -155,25 +155,25 @@ public:
 
 	void buildRenderBuffers(size_t xSize, size_t ySize)
 	{
-		if(frameBuffer != 0) {
-			glDeleteRenderbuffers(1, &renderBuffer);
-			glDeleteRenderbuffers(1, &idRenderBuffer);
+		if(pickerFrameBuffer != 0) {
+			glDeleteRenderbuffers(1, &pickerDepthRenderBuffer);
+			glDeleteRenderbuffers(1, &pickerRenderBuffer);
 		}
 
-		glGenFramebuffers(1, &frameBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glGenFramebuffers(1, &pickerFrameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, pickerFrameBuffer);
 
-		glGenRenderbuffers(1, &renderBuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+		glGenRenderbuffers(1, &pickerDepthRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, pickerDepthRenderBuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, xSize, ySize);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, pickerDepthRenderBuffer);
 
-		glGenRenderbuffers(1, &idRenderBuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, idRenderBuffer);
+		glGenRenderbuffers(1, &pickerRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, pickerRenderBuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, xSize, ySize);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, idRenderBuffer);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, pickerRenderBuffer);
 
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			fprintf(stderr, "Frame buffer setup failed : ");
@@ -202,7 +202,7 @@ public:
 	}
 
 	void checkIntersection(WorldState & state) {
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, pickerFrameBuffer);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		float colorData[4];
@@ -237,9 +237,9 @@ private:
 	GLuint pickerProg;
 	GLuint shaderProg;
 
-	GLuint frameBuffer;
-	GLuint renderBuffer;
-	GLuint idRenderBuffer;
+	GLuint pickerFrameBuffer;
+	GLuint pickerDepthRenderBuffer;
+	GLuint pickerRenderBuffer;
 
 	GLuint zOffsetBuffer;
 	GLuint zLengthBuffer;
