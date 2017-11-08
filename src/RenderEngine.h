@@ -110,9 +110,9 @@ public:
 			checkIntersection(state);
 		}
 
-		// Render to display
+		// Render to texture
 		//clear the old frame
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, textureFrameBuffer);
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -151,6 +151,27 @@ public:
 		glBindVertexArray(0);
 		glUseProgram(0);
         checkGLError("model");
+
+		// Render post processing and display
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//use shader
+		glUseProgram(postProg);
+
+		GLuint texId = 0;
+		glActiveTexture(GL_TEXTURE0 + texId);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glUniform1i(glGetUniformLocation(postProg, "texId"), texId);
+		glUniform2f(glGetUniformLocation(postProg, "resolution"), state.getWindowWidth(), state.getWindowHeight());
+
+		//draw a quad that fills the entire view
+		glBindVertexArray(postVertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glUseProgram(0);
+		checkGLError("render texture");
 	}
 
 	void buildRenderBuffers(size_t xSize, size_t ySize)
