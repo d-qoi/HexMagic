@@ -35,6 +35,9 @@ private:
     glm::mat4 modelIncrement;
     glm::mat4 modelTranslate;
     glm::mat4 cameraMatrix;
+
+	glm::mat3 postKernel;
+	int activeKernel;
 	
 	bool lightRotating;
 	bool modelRotating;
@@ -92,6 +95,9 @@ public:
 		
 		lightRotating = false;
 		modelRotating = false;
+
+		postKernel = glm::mat3(0, 0, 0, 0, 1, 0, 0, 0, 0);
+		activeKernel = 0;
 
 		// to get rid of other errors
 		currentTime = 0;
@@ -197,6 +203,27 @@ public:
 		printf("Model: %d\n", this->activeModel);
 
 		reloadModel();
+	}
+
+	void nextActivePostProcessing()
+	{
+		this->activeKernel++;
+		if(activeKernel > 1) {
+			this->activeKernel = 0;
+		}
+
+		if(activeKernel == 0) {
+			postKernel = glm::mat3(0, 0, 0, 0, 1, 0, 0, 0, 0);
+		} else if(activeKernel == 1) {
+			postKernel = glm::mat3(1, 1, 1, 1, 1, 1, 1, 1, 1);
+		}
+
+		printf("Kernel: %d\n", this->activeKernel);
+	}
+
+	glm::mat3 getPostKernel()
+	{
+		return postKernel;
 	}
     
     void togglePerspective()

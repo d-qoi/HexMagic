@@ -165,6 +165,7 @@ public:
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glUniform1i(glGetUniformLocation(postProg, "texId"), texId);
 		glUniform2f(glGetUniformLocation(postProg, "resolution"), state.getWindowWidth(), state.getWindowHeight());
+		glUniformMatrix3fv(glGetUniformLocation(postProg, "kernel"), 1, GL_FALSE, &state.getPostKernel()[0][0]);
 
 		//draw a quad that fills the entire view
 		glBindVertexArray(postVertexArray);
