@@ -279,6 +279,7 @@ private:
 	bool initialized;
 	GLuint pickerProg;
 	GLuint shaderProg;
+	GLuint postProg;
 
 	GLuint pickerFrameBuffer;
 	GLuint pickerDepthRenderBuffer;
@@ -295,8 +296,8 @@ private:
 	GLuint zLengthPickerBuffer;
 
 	GLuint vertexArray;
-
 	GLuint pickVertexArray;
+	GLuint postVertexArray;
 	
 	glm::mat4 Perspective;
 	glm::mat4 OrthoPerspective;
@@ -345,6 +346,10 @@ private:
 		char const * vertPath = "resources/simple.vert";
 		char const * fragPath = "resources/simple.frag";
 		shaderProg = ShaderManager::shaderFromFile(&vertPath, &fragPath, 1, 1);
+
+		char const * postVertPath = "resources/post.vert";
+		char const * postFragPath = "resources/post.frag";
+		postProg = ShaderManager::shaderFromFile(&postVertPath, &postFragPath, 1, 1);
         
 		checkGLError("shader");
 	}
@@ -559,6 +564,26 @@ private:
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.getElementBytes(), NULL, GL_STATIC_DRAW);
 		//leave the element buffer active
 		checkGLError("model setup");
+
+		glBindVertexArray(0);
+
+		static const GLfloat quadVertexData[] = {
+			-1.0f, -1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,
+			1.0f,  1.0f, 0.0f,
+			-1.0f, -1.0f, 0.0f,
+			1.0f,  1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f,
+		};
+
+		glGenVertexArrays(1, &postVertexArray);
+		glBindVertexArray(postVertexArray);
+		GLuint quadVertexBuffer;
+		glGenBuffers(1, &quadVertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertexData), quadVertexData, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(glGetAttribLocation(postProg, "pos"));
+		glVertexAttribPointer(glGetAttribLocation(postProg, "pos"), 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 		glBindVertexArray(0);
 		checkGLError("setup");
