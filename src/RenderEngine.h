@@ -156,8 +156,11 @@ public:
 	void buildRenderBuffers(size_t xSize, size_t ySize)
 	{
 		if(pickerFrameBuffer != 0) {
+			// TODO: Delete framebuffers
 			glDeleteRenderbuffers(1, &pickerDepthRenderBuffer);
 			glDeleteRenderbuffers(1, &pickerRenderBuffer);
+
+			glDeleteRenderbuffers(1, &textureDepthRenderBuffer);
 		}
 
 		glGenFramebuffers(1, &pickerFrameBuffer);
@@ -192,6 +195,46 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		checkGLError("frame buffer");
+
+		//framebuffer
+		glGenFramebuffers(1, &textureFrameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, textureFrameBuffer);
+
+		//make renderbuffer for depth, attach
+		glGenRenderbuffers(1, &textureDepthRenderBuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, textureDepthRenderBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, xSize, ySize);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, textureDepthRenderBuffer);
+
+		//make texture
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, xSize, ySize, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		//attach texture to framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+		GLenum colorBuffer = GL_COLOR_ATTACHMENT0;
+		glDrawBuffers(1, &colorBuffer);
+
+		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			fprintf(stderr, "Frame buffer setup failed : ");
+			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if(status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
+				fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+			//if(status == GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS)
+			//		fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS\n");
+			if(status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT)
+				fprintf(stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+			if(status == GL_FRAMEBUFFER_UNSUPPORTED)
+				fprintf(stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
+			exit(3);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		checkGLError("texture frame buffer");
 	}
 
 	void reshape(int const & newWidth, int const & newHeight)
@@ -240,6 +283,10 @@ private:
 	GLuint pickerFrameBuffer;
 	GLuint pickerDepthRenderBuffer;
 	GLuint pickerRenderBuffer;
+
+	GLuint texture;
+	GLuint textureFrameBuffer;
+	GLuint textureDepthRenderBuffer;
 
 	GLuint zOffsetBuffer;
 	GLuint zLengthBuffer;
