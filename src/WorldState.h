@@ -208,14 +208,16 @@ public:
 	void nextActivePostProcessing()
 	{
 		this->activeKernel++;
-		if(activeKernel > 1) {
+		if(activeKernel > 2) {
 			this->activeKernel = 0;
 		}
 
 		if(activeKernel == 0) {
 			postKernel = glm::mat3(0, 0, 0, 0, 1, 0, 0, 0, 0);
 		} else if(activeKernel == 1) {
-			postKernel = glm::mat3(1, 1, 1, 1, 1, 1, 1, 1, 1);
+			postKernel = glm::mat3(1, 1, 1, 1, -8, 1, 1, 1, 1);
+		} else if(activeKernel == 2) {
+			postKernel = glm::mat3(1, 0, 0, 0, 1, 0, 0, 0, 1);
 		}
 
 		printf("Kernel: %d\n", this->activeKernel);
