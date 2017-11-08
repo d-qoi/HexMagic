@@ -11,10 +11,10 @@ using namespace std; //makes using vectors easy
 class Model
 {
 public:
-	void init()
+	void init(std::string fileName)
     {
     	objLoader loader;
-    	loader.load("resources/cube.obj"); // This is going to assume that everything is between -0.5 and .5, Allowing for offsets, maybe? Later?
+    	loader.load(fileName.c_str()); // This is going to assume that everything is between -0.5 and .5, Allowing for offsets, maybe? Later?
 		if (loader.materialCount == 0)
 			exit(EXIT_FAILURE);
 
@@ -27,7 +27,7 @@ public:
 			}
 		}
 
-		//DONE Add the OBJ vertices to the model position vector
+		// Add the OBJ vertices to the model position vector
         positions = vector<GLfloat>(); // Verted
 		elements = vector<GLuint>(); // Faces
 

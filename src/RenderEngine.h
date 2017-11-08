@@ -56,6 +56,11 @@ public:
 		setupBuffers(state.getModel());
 	}
 
+	void reloadModel(Model & model)
+	{
+		setupBuffers(model);
+	}
+
 	void display(WorldState & state)
 	{
 		this->C = state.getCameraMatrix();
@@ -299,6 +304,12 @@ private:
 
 	void setupBuffers(Model & model)
 	{
+		if(vertexArray != 0) {
+			// Model was previously loaded
+			GLuint arrays[2] = {vertexArray, pickVertexArray};
+			glDeleteVertexArrays(2, &arrays[0]);
+		}
+
 		glGenVertexArrays(1, &vertexArray);
 		glBindVertexArray(vertexArray);
 		

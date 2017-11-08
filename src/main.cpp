@@ -106,7 +106,10 @@ private:
                 state.toggleLightRotate();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'p'))
 				state.togglePerspective();
-
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'o')) {
+				state.nextActiveModel();
+				render.reloadModel(state.getModel());
+			}
 
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))
 				state.moveCameraLook(0.01f, 0);

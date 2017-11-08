@@ -9,11 +9,14 @@
 class WorldState
 {
 private:
+	std::string const modelFiles[2] = {"resources/cube.obj", "resources/sphere.obj"};
+	int const modelFilesCount = 2;
+
 	float frameTimes[NUM_TRACKED_FRAMES];
 	float currentTime;
 	bool running;
 	Model model;
-    int shadingMode;
+	int activeModel;
     bool perspective;
 	
     glm::vec3 cameraPos;
@@ -55,11 +58,12 @@ public:
 		for(size_t i=0; i<NUM_TRACKED_FRAMES; i++)
 			frameTimes[i] = 0.0f;
         
-        shadingMode = 0;
 		running = true;
-		model = Model();
-        model.init();
-		
+
+		activeModel = 0;
+
+		reloadModel();
+
 		glm::vec3 center = model.getCentroid();
 		glm::vec3 min = model.getMinBound();
 		glm::vec3 max = model.getMaxBound();
@@ -103,6 +107,14 @@ public:
 		perspective = true;
 
 		clearVelocities();
+	}
+
+	void reloadModel()
+	{
+		model = Model();
+		model.init(modelFiles[activeModel]);
+
+		// TODO: Add any additional cleanup necessary
 	}
 	
 	void updateFrameTime(float timeAsSeconds)
@@ -174,17 +186,18 @@ public:
     
     glm::mat4 getCameraMatrix() const
     { return glm::lookAt(cameraPos, cameraLook, cameraUp); }
-    
-    void nextShadingMode()
-    {
-		this->shadingMode++;
-		if(this->shadingMode > 3)
-			this->shadingMode = 0;
-		printf("Shading mode: %i\n", this->shadingMode);
+
+	void nextActiveModel()
+	{
+		this->activeModel++;
+		if(this->activeModel > this->modelFilesCount - 1) {
+			this->activeModel = 0;
+		}
+
+		printf("Model: %d\n", this->activeModel);
+
+		reloadModel();
 	}
-    
-    int getShadingMode() const
-    { return this->shadingMode; }
     
     void togglePerspective()
     { this->perspective = !perspective; }
