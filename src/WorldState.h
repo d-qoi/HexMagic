@@ -9,8 +9,8 @@
 class WorldState
 {
 private:
-	std::string const modelFiles[4] = {"resources/cube.obj", "resources/sphere.obj", "resources/hexagon.obj", "resources/teapot.obj"};
-	int const modelFilesCount = 4;
+	std::string const modelFiles[5] = {"resources/cube.obj", "resources/sphere.obj", "resources/hexagon.obj", "resources/teapot.obj", "resources/puzzle.obj"};
+	int const modelFilesCount = 5;
 
 	float frameTimes[NUM_TRACKED_FRAMES];
 	float currentTime;

@@ -5,6 +5,7 @@ else()
     cmake_minimum_required(VERSION 2.6)
 endif()
 
+option(BUILD_PORT_AUDIO "Enable Port Audio" ON)
 
 # Enable debug symbols by default, must be done before project() statement
 if(NOT CMAKE_BUILD_TYPE)
@@ -24,6 +25,10 @@ file(GLOB_RECURSE HEADERS "src/*.h")
 file(GLOB_RECURSE SOURCES_CPP "src/*.cpp")
 file(GLOB_RECURSE SOURCES_C "src/*.c")
 file(GLOB_RECURSE RESOURCES "resources/*.frag" "resources/*.vert" "resources/*.glsl")
+
+if(BUILD_PORT_AUDIO)
+    add_subdirectory(src/portaudio)
+endif()
 
 set( SOURCES ${SOURCES_CPP} ${SOURCES_C} )
 add_executable(${EXECUTABLE_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
