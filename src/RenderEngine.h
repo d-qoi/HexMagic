@@ -35,7 +35,7 @@ public:
 	void init(WorldState & state)
 	{
 		initialized = true;
-
+		float orthoDiv = 4;
 		float ver = initLoader();
 		if( ver < 1.0f ) {
 			printf("OpenGL is not supported.\n");
@@ -50,7 +50,7 @@ public:
 		glm::vec3 dim = state.getModel().getDimension();
 		float maxDim = std::max(dim[0], std::max(dim[1], dim[2]));
 		this->Perspective = glm::perspective(1.0f, 1.0f, maxDim*0.01f, maxDim*10.0f);
-		this->OrthoPerspective = glm::ortho((float)-WIDTH/4, (float)WIDTH/4, (float)-WIDTH/4, (float)WIDTH/4, maxDim*0.01f, maxDim*10.0f);
+		this->OrthoPerspective = glm::ortho((float)-WIDTH/orthoDiv, (float)WIDTH/orthoDiv, (float)-WIDTH/orthoDiv, (float)WIDTH/orthoDiv, maxDim*0.01f, maxDim*10.0f);
         C = state.getCameraMatrix();
 
 		setupShader();

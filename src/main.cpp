@@ -208,8 +208,6 @@ private:
 int main()
 {
 	printusers();
-	//HexMagic prog;
-	Audio audio;
-	audio.init();
+	HexMagic prog;
 	return EXIT_SUCCESS;
 }
