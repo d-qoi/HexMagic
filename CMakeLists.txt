@@ -18,7 +18,8 @@ project(${EXECUTABLE_NAME})
 add_definitions ( -DEXEC_NAME="${EXECUTABLE_NAME}" )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
-add_subdirectory(libsoundio EXCLUDE_FROM_ALL)
+add_subdirectory(libsoundio)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 file(GLOB_RECURSE HEADERS "src/*.h")
 file(GLOB_RECURSE SOURCES_CPP "src/*.cpp")
@@ -68,6 +69,8 @@ if(APPLE)
     find_library(COREFOUNDATION CoreFoundation)
     set(LIBS ${LIBS} ${COREFOUNDATION})
 endif()
+include_directories(AFTER "${CMAKE_BINARY_DIR}/include/include" "${CMAKE_BINARY_DIR}/include")
 target_link_libraries(${EXECUTABLE_NAME} ${LIBS})
+
 
 

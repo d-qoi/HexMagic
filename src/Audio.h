@@ -10,7 +10,7 @@
 
 #define SAMPLE_RATE (44100)
 
-#include "soundio/soundio.h"
+#include <soundio/soundio.h>
 
 #include "Model.h"
 
