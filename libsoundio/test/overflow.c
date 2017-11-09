@@ -5,14 +5,13 @@
  * See http://opensource.org/licenses/MIT
  */
 
-#include <soundio/soundio.h>
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include "../../src/soundio/soundio.h"
 
 static enum SoundIoFormat prioritized_formats[] = {
     SoundIoFormatFloat32NE,

@@ -10,62 +10,25 @@
 
 #define SAMPLE_RATE (44100)
 
+#include "soundio/soundio.h"
 #include "Model.h"
-#include "portaudio.h"
-
-typedef struct {
-	float left_phase;
-	float right_phase;
-} paData;
 
 class Audio
 {
 public:
-	static int streamCallback(const void* inputBuffer,
-							void* outputBuffer,
-							unsigned long frameCount,
-							const PaStreamCallbackTimeInfo* timeInfo,
-							PaStreamCallbackFlags statusFlags,
-							void* userData)
+	int init()
 	{
+		enum SoundIoBackend backend = SoundIoBackendNone;
+#ifdef __APPLE__
+		backend =
+#elif __WIN32
+
+#elif __linux__
+
+#endif
 		return 0;
 	}
 
-	int init() {
-		PaError err = Pa_Initialize();
-		if (err != paNoError) {
-			printf("Port Audio Initilization Error: %s\n", Pa_GetErrorText(err));
-			return -1;
-		}
-
-		return 0;
-	}
-
-	int terminate() {
-		PaError err = Pa_Terminate();
-		if (err != paNoError) {
-			printf("Port Audio Termination Error: %s\n", Pa_GetErrorText(err));
-			return -1;
-		}
-		return 0;
-	}
-
-	void printDeviceList() {
-		int numDev;
-		numDev = Pa_GetDeviceCount();
-		const PaDeviceInfo *devInfo;
-		if (numDev < 0) {
-			printf("Port Audio: Device Count Error: %s\n", Pa_GetErrorText((PaError)numDev));
-			return;
-		} else {
-			printf("Found %d devices\n", numDev);
-
-			//devInfo = Pa_GetDeviceInfo(Pa_GetDefaultInputDevice());
-			puts("a");
-			printf("Device %i :: %s\n", Pa_GetDefaultInputDevice(), "asdf\0");// devInfo->name);
-			puts("a");
-		}
-	}
 private:
 
 };

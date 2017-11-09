@@ -8,8 +8,8 @@
 #ifndef SOUNDIO_SOUNDIO_H
 #define SOUNDIO_SOUNDIO_H
 
-#include "endian.h"
 #include <stdbool.h>
+#include "../../src/soundio/endian.h"
 
 /// \cond
 #ifdef __cplusplus

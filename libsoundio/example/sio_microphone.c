@@ -5,13 +5,12 @@
  * See http://opensource.org/licenses/MIT
  */
 
-#include <soundio/soundio.h>
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../../src/soundio/soundio.h"
 
 struct SoundIoRingBuffer *ring_buffer = NULL;
 

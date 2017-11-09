@@ -5,11 +5,10 @@
  * See http://opensource.org/licenses/MIT
  */
 
-#include <soundio/soundio.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../../src/soundio/soundio.h"
 
 // list or keep a watch on audio devices
 
