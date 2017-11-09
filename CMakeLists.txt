@@ -24,7 +24,7 @@ file(GLOB_RECURSE SOURCES_CPP "src/*.cpp")
 file(GLOB_RECURSE SOURCES_C "src/*.c")
 file(GLOB_RECURSE RESOURCES "resources/*.frag" "resources/*.vert" "resources/*.glsl")
 
-add_subdirectory(portaudio)
+add_subdirectory(libsoundio)
 
 set( SOURCES ${SOURCES_CPP} ${SOURCES_C} )
 add_executable(${EXECUTABLE_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
@@ -72,5 +72,5 @@ if(APPLE)
 endif()
 
 target_link_libraries(${EXECUTABLE_NAME} ${LIBS})
-target_link_libraries(${EXECUTABLE_NAME} portaudio)
+target_link_libraries(${EXECUTABLE_NAME} libsoundio)
 

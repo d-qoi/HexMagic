@@ -212,6 +212,7 @@ int main()
 	Audio audio;
 	audio.init();
 	audio.printDeviceList();
+	puts("b");
 	audio.terminate();
     return EXIT_SUCCESS;
 }

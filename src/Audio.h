@@ -59,10 +59,11 @@ public:
 			return;
 		} else {
 			printf("Found %d devices\n", numDev);
-			for (int i = 0; i<numDev; i++) {
-				devInfo = Pa_GetDeviceInfo(i);
-				printf("Device %i :: %s\n", i, devInfo->name);
-			}
+
+			//devInfo = Pa_GetDeviceInfo(Pa_GetDefaultInputDevice());
+			puts("a");
+			printf("Device %i :: %s\n", Pa_GetDefaultInputDevice(), "asdf\0");// devInfo->name);
+			puts("a");
 		}
 	}
 private:
