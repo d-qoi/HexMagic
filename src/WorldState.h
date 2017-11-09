@@ -375,9 +375,9 @@ public:
 		// velocity dampener
 		const float P = 0.1f;
 		// time fiddling
-		const float t = elapsedTime * 30.0f;
+		const float t = min(elapsedTime * 30.0f, 0.75f);
 		// acceleration dampener
-		const float D = 0.955f;
+		const float D = 0.95f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -412,9 +412,9 @@ public:
 				sum -= (offset - prevOffset) * K;
 			}
 
-			acceleration[i] = acceleration[i] * D + sum - offset * B;
+			acceleration[i] = min(max(acceleration[i] * D + sum - offset * B, -50.0), 50.0);
 
-			velocity[i] = (velocity[i] + acceleration[i] * t) * P;
+			velocity[i] = min(max((velocity[i] + acceleration[i] * t) * P, -15.0), 15.0);
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
@@ -426,10 +426,10 @@ public:
 				continue;
 			}
 			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
-			if (change > -0.001f && change < 0.001f) {
+			if (change > -0.01f && change < 0.01f) {
 				model.setZOffset(i, x + y);
 			} else {
-				model.setZOffset(i, model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t);
+				model.setZOffset(i, min(max(model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t, -100.0), 100.0));
 			}
 		}
 	}
