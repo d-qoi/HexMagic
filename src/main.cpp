@@ -209,10 +209,7 @@ int main()
 {
 	printusers();
 	//HexMagic prog;
-	//Audio audio;
-	//audio.init();
-	//audio.printDeviceList();
-	//puts("b");
-	//audio.terminate();
-    return EXIT_SUCCESS;
+	Audio audio;
+	audio.init();
+	return EXIT_SUCCESS;
 }
