@@ -5,8 +5,6 @@ else()
     cmake_minimum_required(VERSION 2.6)
 endif()
 
-option(BUILD_PORT_AUDIO "Enable Port Audio" ON)
-
 # Enable debug symbols by default, must be done before project() statement
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -26,9 +24,7 @@ file(GLOB_RECURSE SOURCES_CPP "src/*.cpp")
 file(GLOB_RECURSE SOURCES_C "src/*.c")
 file(GLOB_RECURSE RESOURCES "resources/*.frag" "resources/*.vert" "resources/*.glsl")
 
-if(BUILD_PORT_AUDIO)
-    add_subdirectory(src/portaudio)
-endif()
+add_subdirectory(portaudio)
 
 set( SOURCES ${SOURCES_CPP} ${SOURCES_C} )
 add_executable(${EXECUTABLE_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
@@ -76,5 +72,5 @@ if(APPLE)
 endif()
 
 target_link_libraries(${EXECUTABLE_NAME} ${LIBS})
-
+target_link_libraries(${EXECUTABLE_NAME} portaudio)
 
