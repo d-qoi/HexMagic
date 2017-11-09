@@ -369,15 +369,15 @@ public:
 	void tick(float elapsedTime)
 	{
 		// height -> accel constant for adj blocks
-		const float K = 0.3f;
+		const float K = 0.7f;
 		// height -> accel constant 
-		const float B = 0.07f;
+		const float B = 0.1f;
 		// velocity dampener
-		const float P = 0.1f;
+		const float P = 0.14f;
 		// time fiddling
-		const float t = min(elapsedTime * 30.0f, 0.75f);
+		const float t = min(elapsedTime * 20.0f, 0.5f);
 		// acceleration dampener
-		const float D = 0.95f;
+		const float D = 0.955f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
