@@ -412,9 +412,9 @@ public:
 				sum -= (offset - prevOffset) * K;
 			}
 
-			acceleration[i] = min(max(acceleration[i] * D + sum - offset * B, -50.0), 50.0);
+			acceleration[i] = acceleration[i] * D + sum - offset * B;// min(max(acceleration[i] * D + sum - offset * B, -50.0), 50.0);
 
-			velocity[i] = min(max((velocity[i] + acceleration[i] * t) * P, -15.0), 15.0);
+			velocity[i] = (velocity[i] + acceleration[i] * t) * P;// min(max((velocity[i] + acceleration[i] * t) * P, -15.0), 15.0);
 		}
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
@@ -429,7 +429,8 @@ public:
 			if (change > -0.01f && change < 0.01f) {
 				model.setZOffset(i, x + y);
 			} else {
-				model.setZOffset(i, min(max(model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t, -100.0), 100.0));
+				model.setZOffset(i, model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t);
+				// min(max(model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t, -100.0), 100.0));
 			}
 		}
 	}
