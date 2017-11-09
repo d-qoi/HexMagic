@@ -27,6 +27,8 @@
 #include "WorldState.h"
 #include "simplePNG.h"
 
+#include "Audio.h"
+
 class HexMagic
 {
 public:
@@ -206,7 +208,10 @@ private:
 int main()
 {
 	printusers();
-	HexMagic prog;
-	
+	//HexMagic prog;
+	Audio audio;
+	audio.init();
+	audio.printDeviceList();
+	audio.terminate();
     return EXIT_SUCCESS;
 }
