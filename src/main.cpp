@@ -110,7 +110,7 @@ private:
 				state.nextActiveModel();
 				render.reloadModel(state.getModel());
 			}
-			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 's'))
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'i'))
 				state.nextActivePostProcessing();
 
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))

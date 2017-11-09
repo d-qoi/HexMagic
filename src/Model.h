@@ -6,7 +6,7 @@
 #include "objload/objLoader.hpp"
 using namespace std; //makes using vectors easy
 
-#define WIDTH 40
+#define WIDTH 50
 
 class Model
 {
@@ -254,7 +254,7 @@ private:
 			}
 		}
 		
-		return bound;
+		return bound*WIDTH;
 	}
 	
 	glm::vec3 computeCentroid()
