@@ -320,18 +320,14 @@ public:
 	{
 		int selectedIndex = rand() % (WIDTH * WIDTH);
 
-		int x = selectedIndex % WIDTH;
-		int y = selectedIndex / WIDTH;
-
 		int up = rand() % 2;
-		float forcing = 10 + rand() % 20;
+		float forcing = (10 + rand() % 20) * 20;
 
 		if(!up) {
 			forcing = -forcing;
-			printf("Not up %f\n", forcing);
 		}
 
-		model.setZOffset(selectedIndex, (float)(x + y) + forcing);
+		velocity[selectedIndex] = velocity[selectedIndex] + forcing;
 	}
 
     glm::vec4 getCameraPos() const
