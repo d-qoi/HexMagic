@@ -3,8 +3,13 @@
 #include <stdio.h>
 #include "glm/ext.hpp"
 #include "Model.h"
+#include "Audio.h"
+#include "SFML/Audio.hpp"
+#include "SFML/Main.hpp"
 
 #define NUM_TRACKED_FRAMES 10
+#define SAMPLE_RATE 44100
+#define PROCESS_TIME_MS 10
 
 class WorldState
 {
@@ -54,6 +59,8 @@ private:
 
 	double velocity[WIDTH * WIDTH] = { 0 };
 	double acceleration[WIDTH * WIDTH] = { 0 };
+
+	Audio audio;
 
 public:
 	WorldState()
@@ -112,7 +119,18 @@ public:
 
 		perspective = true;
 
+		if (Audio::isAvailable()) {
+			audio.setDevice(Audio::getDefaultDevice());
+			audio.start(SAMPLE_RATE);
+			audio.setModel(&this->model);
+		}
+
 		clearVelocities();
+	}
+
+	~WorldState()
+	{
+		audio.stop();
 	}
 
 	void reloadModel()
@@ -364,6 +382,12 @@ public:
 //		printf("Translating %f by %f\n", model.getZOffset(index - 1) , diff.y);
 		model.setZOffset(index - 1, model.getZOffset(index - 1) + diff.y);
 	}
+
+	void toggleAudioProcessing()
+	{ audio.toggle(); puts("Audio Toggle");	}
+
+	void toggleAudioMode()
+	{ audio.toggleMode(); puts("Mode Toggle");	}
 
 
 	void tick(float elapsedTime)

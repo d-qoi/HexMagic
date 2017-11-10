@@ -11,9 +11,15 @@
 
 typedef double real_type;
 typedef std::complex<real_type> complex_type;
+typedef std::vector<real_type> RealArray1D;
+typedef std::vector<complex_type> ComplexArray1D;
+typedef std::vector<std::vector<real_type> > RealArray2D;
+typedef std::vector<std::vector<complex_type> > ComplexArray2D;
+typedef std::vector<std::vector<std::vector<real_type> > > RealArray3D;
+typedef std::vector<std::vector<std::vector<complex_type> > > ComplexArray3D;
 
-//#ifndef __USE_SQUARE_BRACKETS_FOR_ELEMENT_ACCESS_OPERATOR
-//#define __USE_SQUARE_BRACKETS_FOR_ELEMENT_ACCESS_OPERATOR
-//#endif
+#ifndef __USE_SQUARE_BRACKETS_FOR_ELEMENT_ACCESS_OPERATOR
+#define __USE_SQUARE_BRACKETS_FOR_ELEMENT_ACCESS_OPERATOR
+#endif
 
 #endif // __SIMPLE_FFT__FFT_SETTINGS_H__

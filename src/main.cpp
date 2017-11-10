@@ -114,6 +114,10 @@ private:
 			}
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'i'))
 				state.nextActivePostProcessing();
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'u'))
+				state.toggleAudioProcessing();
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'j'))
+				state.toggleAudioMode();
 
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))
 				state.moveCameraLook(0.01f, 0);
