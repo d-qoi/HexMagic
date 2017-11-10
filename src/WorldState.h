@@ -227,7 +227,7 @@ public:
 	void nextActivePostProcessing()
 	{
 		this->activeKernel++;
-		if(activeKernel > 2) {
+		if(activeKernel > 3) {
 			this->activeKernel = 0;
 		}
 
@@ -237,6 +237,8 @@ public:
 			postKernel = glm::mat3(1, 1, 1, 1, -8, 1, 1, 1, 1);
 		} else if(activeKernel == 2) {
 			postKernel = glm::mat3(1, 0, 0, 0, 1, 0, 0, 0, 1);
+		} else if (activeKernel == 3) {
+			postKernel = glm::mat3(0, -1, 3, -2, 0, -1, 3, -2, 0);
 		}
 
 		printf("Kernel: %d\n", this->activeKernel);
@@ -391,10 +393,10 @@ public:
 	}
 
 	void toggleAudioProcessing()
-	{ audio.toggle(); puts("Audio Toggle");	}
+	{ audio.toggle(); printf("Audio Toggle\n");	}
 
 	void toggleAudioMode()
-	{ audio.toggleMode(); puts("Mode Toggle");	}
+	{ audio.toggleMode(); printf("Mode Toggle\n");	}
 
 
 	void tick(float elapsedTime)

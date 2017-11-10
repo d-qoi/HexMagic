@@ -35,7 +35,7 @@ public:
 	void init(WorldState & state)
 	{
 		initialized = true;
-		float orthoDiv = 8;
+		float orthoDiv = 6;
 		float ver = initLoader();
 		if( ver < 1.0f ) {
 			printf("OpenGL is not supported.\n");
