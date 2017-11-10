@@ -15,6 +15,7 @@ o | Switch active model
 i | Switch post processing filter
 u | Enable audio processing
 j | Toggle audio mode (between sound energy and FFT)
+z | Toggle demo mode (switches between various modes and causes random activity)
 q | Tilt camera up
 e | Tilt camera down
 w | Move camera forward
