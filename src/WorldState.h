@@ -24,6 +24,7 @@ private:
 	int activeModel;
 	int colorMode;
 	bool perspective;
+	bool demo;
 
 	glm::vec3 cameraPos;
 	glm::vec3 cameraLook;
@@ -113,6 +114,7 @@ public:
 		selectedIndex = 0;
 
 		perspective = true;
+		demo = false;
 
 		if (Audio::isAvailable()) {
 			audio.setDevice(Audio::getDefaultDevice());
@@ -213,9 +215,16 @@ public:
 	void nextActivePostProcessing()
 	{
 		this->activeKernel++;
-		if(activeKernel > 3) {
+		if(this->activeKernel > 3) {
 			this->activeKernel = 0;
 		}
+
+		setActiveKernel(this->activeKernel);
+	}
+
+	void setActiveKernel(int kernelNumber)
+	{
+		this->activeKernel = kernelNumber;
 
 		if(activeKernel == 0) {
 			postKernel = glm::mat3(0, 0, 0, 0, 1, 0, 0, 0, 0);
@@ -246,6 +255,84 @@ public:
 
     bool getPerspective() const
     { return this->perspective; }
+
+	void toggleDemo()
+	{
+		this->demo = !demo;
+	}
+
+	bool getDemo() const
+	{ return this->demo; }
+
+	void updateDemo()
+	{
+		int selectedType = rand() % 3;
+
+		switch(selectedType) {
+			case 0: {
+				// Perspective
+				togglePerspective();
+				break;
+			}
+
+			case 1: {
+				// Models
+				int selectedModel = rand() % modelFilesCount;
+				if(selectedModel == this->activeModel) {
+					selectedModel = (selectedModel + 1) % modelFilesCount;
+				}
+
+				this->activeModel = selectedModel;
+
+				reloadModel();
+				break;
+			}
+
+			case 2: {
+				// Post processing
+				int selectedKernel = rand() % 4;
+				if(selectedKernel == this->activeKernel) {
+					selectedKernel = (selectedKernel + 1) % modelFilesCount;
+				}
+				setActiveKernel(selectedKernel);
+				break;
+			}
+
+//			case 3: {
+//				// Toggle audio
+//				toggleAudioProcessing();
+//				break;
+//			}
+//
+//			case 4: {
+//				audio.enable();
+//				// Audio mode
+//				toggleAudioMode();
+//				break;
+//			}
+
+			default:
+				break;
+		}
+	}
+
+	void randomActivity()
+	{
+		int selectedIndex = rand() % (WIDTH * WIDTH);
+
+		int x = selectedIndex % WIDTH;
+		int y = selectedIndex / WIDTH;
+
+		int up = rand() % 2;
+		float forcing = 10 + rand() % 20;
+
+		if(!up) {
+			forcing = -forcing;
+			printf("Not up %f\n", forcing);
+		}
+
+		model.setZOffset(selectedIndex, (float)(x + y) + forcing);
+	}
 
     glm::vec4 getCameraPos() const
     { return glm::vec4(this->cameraPos, 1); }

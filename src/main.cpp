@@ -5,6 +5,8 @@
 #define RESOLUTION 512
 #define TARGET_FPS 60                // controls spin update rate
 #define TIME_BETWEEN_UPDATES 0.015   // seconds between motion updates
+#define TIME_BETWEEN_DEMO 5.0f
+#define TIME_BETWEEN_FORCING 1.0f
 #define PRINT_FPS_INTERVAL 10.0f
 
 
@@ -82,7 +84,11 @@ private:
 	RenderEngine render;
 	
 	sf::Clock timer;
+	sf::Clock demoTimer;
+	sf::Clock forceTimer;
 	float lastUpdate;
+	float lastDemo;
+	float lastForce;
 	glm::ivec2 previousPos;
 	bool buttonDown[3];
 
@@ -115,6 +121,8 @@ private:
 				state.toggleAudioMode();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'c'))
 				state.nextColorMode();
+			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'z'))
+				state.toggleDemo();
 
 			if((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Q))
 				state.moveCameraLook(0.01f, 0);
@@ -163,6 +171,23 @@ private:
 
 			lastUpdate = timer.restart().asSeconds();
 			previousPos = newPos;
+		}
+
+		lastDemo = demoTimer.getElapsedTime().asSeconds();
+		lastForce = forceTimer.getElapsedTime().asSeconds();
+
+		if(state.getDemo()) {
+			if(lastForce > TIME_BETWEEN_FORCING) {
+				state.randomActivity();
+
+				lastForce = forceTimer.restart().asSeconds();
+			}
+
+			if(lastDemo > TIME_BETWEEN_DEMO) {
+				state.updateDemo();
+
+				lastDemo = demoTimer.restart().asSeconds();
+			}
 		}
 
 		state.setCursorPos(sf::Mouse::getPosition(*App), App->getSize());
