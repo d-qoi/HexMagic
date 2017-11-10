@@ -15,10 +15,10 @@ public:
 		initialized = false;
 		
 		//camera
-        this->Perspective = glm::perspective(1.0f, 1.0f, 0.1f, 100.0f);
-        this->OrthoPerspective = glm::ortho((float)-WIDTH, (float)WIDTH, (float)0, (float)WIDTH, 0.1f, 1000.0f);
-        this->P = &OrthoPerspective;
-        this->C = glm::mat4(1);
+		this->Perspective = glm::perspective(1.0f, 1.0f, 0.1f, 100.0f);
+		this->OrthoPerspective = glm::ortho((float)-WIDTH, (float)WIDTH, (float)0, (float)WIDTH, 0.1f, 1000.0f);
+		this->P = &OrthoPerspective;
+		this->C = glm::mat4(1);
 		this->M = glm::mat4(1);
 	}
 
@@ -35,7 +35,7 @@ public:
 	void init(WorldState & state)
 	{
 		initialized = true;
-		float orthoDiv = 4;
+		float orthoDiv = 8;
 		float ver = initLoader();
 		if( ver < 1.0f ) {
 			printf("OpenGL is not supported.\n");
@@ -50,7 +50,13 @@ public:
 		glm::vec3 dim = state.getModel().getDimension();
 		float maxDim = std::max(dim[0], std::max(dim[1], dim[2]));
 		this->Perspective = glm::perspective(1.0f, 1.0f, maxDim*0.01f, maxDim*10.0f);
-		this->OrthoPerspective = glm::ortho((float)-WIDTH/orthoDiv, (float)WIDTH/orthoDiv, (float)-WIDTH/orthoDiv, (float)WIDTH/orthoDiv, maxDim*0.01f, maxDim*10.0f);
+		this->OrthoPerspective = glm::ortho(
+				(float)-WIDTH/orthoDiv,
+				(float)WIDTH/orthoDiv,
+				(float)0.0f,
+				(float)WIDTH/orthoDiv,
+				maxDim*0.01f,
+				maxDim*5.0f);
         C = state.getCameraMatrix();
 
 		setupShader();
@@ -120,13 +126,13 @@ public:
 		//use shader
 		glUseProgram(shaderProg);
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "C"), 1, GL_FALSE, &C[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "M"), 1, GL_FALSE, &M[0][0]);
-        glUniformMatrix3fv(glGetUniformLocation(shaderProg, "N"), 1, GL_FALSE, &N[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProg, "L"), 1, GL_FALSE, &L[0][0]);
-        glUniform4fv(glGetUniformLocation(shaderProg, "lightPos"), 1, &lightPos[0]);
-        glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProg, "P"), 1, GL_FALSE, &(*P)[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProg, "C"), 1, GL_FALSE, &C[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProg, "M"), 1, GL_FALSE, &M[0][0]);
+		glUniformMatrix3fv(glGetUniformLocation(shaderProg, "N"), 1, GL_FALSE, &N[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProg, "L"), 1, GL_FALSE, &L[0][0]);
+		glUniform4fv(glGetUniformLocation(shaderProg, "lightPos"), 1, &lightPos[0]);
+		glUniform4fv(glGetUniformLocation(shaderProg, "camPos"), 1, &camPos[0]);
 
 		float highlightX = -1;
 		float highlightY = -1;
@@ -262,6 +268,12 @@ public:
 	void reshape(int const & newWidth, int const & newHeight)
 	{
 		Perspective = glm::perspective((float)(60.0/180.0 * M_PI), (float)newWidth / (float)newHeight, 0.1f, 100.0f);
+		OrthoPerspective = glm::ortho(
+				(float)-newWidth/(2*WIDTH),
+				(float)newWidth/(2*WIDTH),
+				(float)-newHeight/(2*WIDTH)+(WIDTH/10),
+				(float)newHeight/(2*WIDTH)+(WIDTH/10),
+				0.1f, 100.0f);
 		glViewport(0, 0, newWidth, newHeight);
 		buildRenderBuffers(newWidth, newHeight);
 	}
