@@ -83,7 +83,6 @@ private:
 	
 	sf::Clock timer;
 	float lastUpdate;
-	float motionTime;
 	glm::ivec2 previousPos;
 	bool buttonDown[3];
 
@@ -102,10 +101,6 @@ private:
                 state.clearVelocities();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == '='))
 				saveBuffer(*App);
-			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'r'))
-                state.toggleModelRotate();
-			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 't'))
-                state.toggleLightRotate();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'p'))
 				state.togglePerspective();
 			if((event.type == sf::Event::TextEntered) && (event.text.unicode == 'o')) {

@@ -44,9 +44,6 @@ private:
 
 	glm::mat3 postKernel;
 	int activeKernel;
-	
-	bool lightRotating;
-	bool modelRotating;
 
 	double cursorX;
 	double cursorY;
@@ -101,9 +98,6 @@ public:
         modelIncrement = glm::rotate(glm::mat4(1), 0.02f, glm::vec3(0,1,0));
         modelTranslate = glm::translate(glm::mat4(1), -model.getCentroid());
 		
-		lightRotating = false;
-		modelRotating = false;
-
 		postKernel = glm::mat3(0, 0, 0, 0, 1, 0, 0, 0, 0);
 		activeKernel = 0;
 
@@ -179,14 +173,6 @@ public:
 	{
 		float elapsed = t - this->currentTime;
 		this->updateFrameTime(elapsed);
-		
-		//spin light
-		if(lightRotating)
-			lightRotate = lightIncrement * lightRotate;
-        
-        //spin model
-		if(modelRotating)
-			modelRotate = modelIncrement * modelRotate;
 		
 		this->currentTime = t;
 	}
@@ -264,12 +250,6 @@ public:
     glm::vec4 getCameraPos() const
     { return glm::vec4(this->cameraPos, 1); }
 	
-	void toggleModelRotate()
-	{ modelRotating = !modelRotating; }
-	
-	void toggleLightRotate()
-	{ lightRotating = !lightRotating; }
-
 	void setCursorPos(sf::Vector2i pos, sf::Vector2u windowSize)
 	{
 		double x = (double)pos.x;
