@@ -393,15 +393,15 @@ public:
 	void tick(float elapsedTime)
 	{
 		// height -> accel constant for adj blocks
-		const float K = 0.3f;
+		const float K = 0.7f;
 		// height -> accel constant 
-		const float B = 0.07f;
+		const float B = 0.1f;
 		// velocity dampener
-		const float P = 0.1f;
+		const float P = 0.14f;
 		// time fiddling
-		const float t = min(elapsedTime * 30.0f, 0.75f);
+		const float t = min(elapsedTime * 20.0f, 0.5f);
 		// acceleration dampener
-		const float D = 0.95f;
+		const float D = 0.955f;
 
 		for(int i = 0; i < WIDTH * WIDTH; i++) {
 			int x = i % WIDTH;
@@ -451,9 +451,9 @@ public:
 			}
 			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
 			if (change > -0.01f && change < 0.01f) {
-				model.setZOffset(i, x + y);
+				model.setZOffset(i, model.getZOffset(i));
 			} else {
-				model.setZOffset(i, model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t);
+				model.setZOffset(i, model.getZOffset(i) + change);
 				// min(max(model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t, -100.0), 100.0));
 			}
 		}
