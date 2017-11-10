@@ -13,6 +13,8 @@ Space | Reset all motion and positions
 p | Toggle between perspective and orthographic camera
 o | Switch active model
 i | Switch post processing filter
+u | Enable audio processing
+j | Toggle audio mode (between sound energy and FFT)
 q | Tilt camera up
 e | Tilt camera down
 w | Move camera forward
