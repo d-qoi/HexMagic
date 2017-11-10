@@ -326,7 +326,7 @@ public:
 	void moveCameraLook(float pitch, float yaw)
 	{
 		glm::mat4 base = glm::mat4(1.0f);
-		glm::vec4 camBase = glm::vec4(cameraPos.x, cameraPos.y, cameraPos.z-camDistance, 1) - glm::vec4(cameraPos, 1);
+		glm::vec4 camBase = glm::vec4(0, WIDTH/4.7f, 0, 1) - glm::vec4(cameraPos, 1);
 		this->camPitch += pitch;
 		this->camYaw += yaw;
 
