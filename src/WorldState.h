@@ -427,9 +427,9 @@ public:
 			}
 			float change = velocity[i] * t + 0.5 * acceleration[i] * t * t;
 			if (change > -0.01f && change < 0.01f) {
-				model.setZOffset(i, x + y);
+				model.setZOffset(i, model.getZOffset(i));
 			} else {
-				model.setZOffset(i, model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t);
+				model.setZOffset(i, model.getZOffset(i) + change);
 				// min(max(model.getZOffset(i) + velocity[i] * t + 0.5 * acceleration[i] * t * t, -100.0), 100.0));
 			}
 		}
