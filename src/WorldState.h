@@ -22,24 +22,25 @@ private:
 	bool running;
 	Model model;
 	int activeModel;
-    bool perspective;
+	int colorMode;
+	bool perspective;
+
+	glm::vec3 cameraPos;
+	glm::vec3 cameraLook;
+	glm::vec3 cameraUp;
+	float camPitch;
+	float camYaw;
+	float camDistance;
+
+	glm::vec4 lightPos;
+	glm::vec3 lightIntensity;
 	
-    glm::vec3 cameraPos;
-    glm::vec3 cameraLook;
-    glm::vec3 cameraUp;
-    float camPitch;
-    float camYaw;
-    float camDistance;
-    
-    glm::vec4 lightPos;
-    glm::vec3 lightIntensity;
-    
-    glm::mat4 lightRotate;
-    glm::mat4 lightIncrement;
-    glm::mat4 modelRotate;
-    glm::mat4 modelIncrement;
-    glm::mat4 modelTranslate;
-    glm::mat4 cameraMatrix;
+	glm::mat4 lightRotate;
+	glm::mat4 lightIncrement;
+	glm::mat4 modelRotate;
+	glm::mat4 modelIncrement;
+	glm::mat4 modelTranslate;
+	glm::mat4 cameraMatrix;
 
 	glm::mat3 postKernel;
 	int activeKernel;
@@ -245,6 +246,12 @@ public:
 	{
 		return postKernel;
 	}
+
+	void nextColorMode()
+	{ this->colorMode = (colorMode + 1)%4; }
+
+	int getColorMode()
+	{ return colorMode;	}
     
     void togglePerspective()
     { this->perspective = !perspective; }

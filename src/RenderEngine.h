@@ -144,6 +144,8 @@ public:
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightX"), highlightX);
 		glUniform1f(glGetUniformLocation(shaderProg, "highlightY"), highlightY);
 
+		glUniform1i(glGetUniformLocation(shaderProg, "colorMode"), state.getColorMode());
+
 		glBindBuffer(GL_ARRAY_BUFFER, zOffsetBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, state.getModel().getZOffsetsBytes(), &state.getModel().getZOffsets()[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -271,8 +273,8 @@ public:
 		OrthoPerspective = glm::ortho(
 				(float)-newWidth/(2*WIDTH),
 				(float)newWidth/(2*WIDTH),
-				(float)-newHeight/(2*WIDTH)+(WIDTH/10),
-				(float)newHeight/(2*WIDTH)+(WIDTH/10),
+				(float)-newHeight/(2*WIDTH)+(WIDTH/20),
+				(float)newHeight/(2*WIDTH)+(WIDTH/20),
 				0.1f, 100.0f);
 		glViewport(0, 0, newWidth, newHeight);
 		buildRenderBuffers(newWidth, newHeight);
